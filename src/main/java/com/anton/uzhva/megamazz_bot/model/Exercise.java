@@ -1,6 +1,6 @@
 package com.anton.uzhva.megamazz_bot.model;
 
-import com.anton.uzhva.megamazz_bot.ExerciseName;
+import com.anton.uzhva.megamazz_bot.util.ExerciseName;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
