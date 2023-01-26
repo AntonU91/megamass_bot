@@ -2,6 +2,8 @@ package com.anton.uzhva.megamazz_bot.model;
 
 import com.anton.uzhva.megamazz_bot.util.ExerciseName;
 
+import java.util.Date;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
@@ -25,6 +27,14 @@ public class Exercise {
     @Column(name="count")
     @NotBlank
     private int count;
+
+    @Column(name = "record_date")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date recordDate;
+
+    @Column(name="week_number")
+    private int weekNumber;
+
 
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "chat_id")
@@ -69,4 +79,23 @@ public class Exercise {
     public void setUser(User user) {
         this.user = user;
     }
+
+    public Date getRecordDate() {
+        return recordDate;
+    }
+
+    public void setRecordDate(Date recordDate) {
+        this.recordDate = recordDate;
+    }
+
+    public int getWeekNumber() {
+        return weekNumber;
+    }
+
+    public void setWeekNumber(int weekNumber) {
+        this.weekNumber = weekNumber;
+    }
+
+    
+    
 }

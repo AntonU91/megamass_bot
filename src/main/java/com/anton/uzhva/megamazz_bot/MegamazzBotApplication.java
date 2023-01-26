@@ -1,6 +1,5 @@
 package com.anton.uzhva.megamazz_bot;
 
-import com.anton.uzhva.megamazz_bot.bot.MegamazzBot;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
