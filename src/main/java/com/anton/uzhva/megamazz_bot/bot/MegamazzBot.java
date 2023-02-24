@@ -52,6 +52,8 @@ public class MegamazzBot extends TelegramLongPollingBot {
 
     private Long resultId = 0L;
 
+    private String chekingText;
+
     @Override
     public void onRegister() {
         System.out.println("Bot is registered");
@@ -79,7 +81,6 @@ public class MegamazzBot extends TelegramLongPollingBot {
         }
     }
 
-    
     private void executeEditMsgText(EditMessageText editMessageText) {
         try {
             execute(editMessageText);
@@ -138,22 +139,28 @@ public class MegamazzBot extends TelegramLongPollingBot {
             } else {
                 executeMsg(greetingToUnregisteredUser(chatId, update));
             }
-        } else if (msg.matches("^\\s*\\D+.*")) {
+        } else if (msg.matches("^\\s*\\D+.*")
+                  & chekingText.equals("Введите название нового упражнения. Название должно начинаться с буквы")) {
             if (hasUserCreatedLogin(chatId)) {
                 executeMsg(saveNewExercise(update));
             } else {
                 registration(chatId, update);
             }
-        } else if (msg.matches("\\s*\\d{1,3}.*")) {
+            chekingText = null;
+        } else if (msg.matches("\\s*\\d{1,3}.*") &
+        chekingText.equals("Введи максимальный весовой результат с клавиатуры") ) {
             saveWeightValue(msg);
             executeMsg(selectCountExerciseRepeating(chatId));
+            chekingText = null;
         }
     }
 
-    public InlineKeyboardMarkup selectExerciseKeyBoard(long chatId) { // TODO: change the methods details related to geting
-                                                           // exersices from DB and transforming it.
+    public InlineKeyboardMarkup selectExerciseKeyBoard(long chatId) { // TODO: change the methods details related to
+                                                                      // geting
+        // exersices from DB and transforming it.
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        List<String> exerciseNames = userService.getExerciseList(chatId); // тут нужно вытягивать лист конкретного Entity и делать это через userService
+        List<String> exerciseNames = userService.getExerciseList(chatId); // тут нужно вытягивать лист конкретного
+                                                                          // Entity и делать это через userService
         List<InlineKeyboardButton> row = new ArrayList<>();
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
 
@@ -251,6 +258,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
         exercise.setUser(user);
 
         if (exerciseService.findAtLeastOneExerciceRecordByUserId(chatId).isEmpty()) {
+            exercise.setRecordDate(new Date());
             exercise.setWeekNumber(1);
 
         } else {
@@ -259,8 +267,9 @@ public class MegamazzBot extends TelegramLongPollingBot {
         }
         exerciseRepo.save(exercise);
 
-        resultId = exercise.getId();
-        messageText.setText("Введи максимальный весовой результат с клавиатуры");
+        resultId = exercise.getId(); // ?????
+        chekingText = "Введи максимальный весовой результат с клавиатуры";
+        messageText.setText(chekingText);
         messageText.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
         messageText.setChatId(chatId);
         return messageText;
@@ -346,7 +355,8 @@ public class MegamazzBot extends TelegramLongPollingBot {
     }
 
     boolean isCallBackQueryExerciseName(String callBackData, long chatId) {
-        for (String exerciseList : userService.getExerciseList(chatId)) { // тут нужно вытягивать лист конкретного Entity и делать это через userService 
+        for (String exerciseList : userService.getExerciseList(chatId)) { // тут нужно вытягивать лист конкретного
+                                                                          // Entity и делать это через userService
             if (callBackData.equals(exerciseList)) {
                 return true;
             }
@@ -418,7 +428,8 @@ public class MegamazzBot extends TelegramLongPollingBot {
     private SendMessage addNewExercise(long chatId) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
-        message.setText("Введите название нового упражнения. Название должно начинаться с буквы");
+        chekingText = "Введите название нового упражнения. Название должно начинаться с буквы";
+        message.setText(chekingText);
         return message;
     }
 
@@ -435,10 +446,10 @@ public class MegamazzBot extends TelegramLongPollingBot {
         long chatId = update.getMessage().getChatId();
         SendMessage message = new SendMessage();
         String exerciseName = update.getMessage().getText();
-      userService.addExercise(chatId, exerciseName);
+        userService.addExercise(chatId, exerciseName);
         message.setChatId(update.getMessage().getChatId());
         message.setText("Вы добавили новое упражнение - " + exerciseName);
         return message;
-    } 
+    }
 
 }
