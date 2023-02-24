@@ -4,10 +4,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 
-import org.jvnet.hk2.annotations.Service;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.anton.uzhva.megamazz_bot.model.Exercise;
@@ -17,17 +14,16 @@ import com.anton.uzhva.megamazz_bot.model.ExerciseRepo;
 @Transactional(readOnly = true)
 public class ExerciseSevice {
 
-  private final ExerciseRepo exerciseRepo;
   private final EntityManager eManager;
 
   @Autowired
   public ExerciseSevice(ExerciseRepo exerciseRepo, EntityManager eManager) {
-    this.exerciseRepo = exerciseRepo;
     this.eManager = eManager;
   }
 
   public List<Exercise> findAllExerciseRecordByUserId(long chatId) {
-    return eManager.createQuery("FROM exercise e where e.user.chatId=:id").setParameter("id", chatId).getResultList();
+    return eManager.createQuery("FROM exercise e where e.user.chatId=:id")
+    .setParameter("id", chatId).getResultList();
   }
 
   public List<Exercise> findAtLeastOneExerciceRecordByUserId(long chatId) {
@@ -49,6 +45,8 @@ public class ExerciseSevice {
   }
 
   public List<Exercise> getTrainingResult (long chatId, int weekNumber) {
-    return eManager.createQuery("FROM exercise e WHERE  e.user.chatId=:id AND e.weekNumber=:weekNumber").setParameter("weekNumber", weekNumber).setParameter("id", chatId).getResultList();
+    return eManager.createQuery("FROM exercise e WHERE  e.user.chatId=:id AND e.weekNumber=:weekNumber")
+    .setParameter("weekNumber", weekNumber)
+    .setParameter("id", chatId).getResultList();
   }
 }

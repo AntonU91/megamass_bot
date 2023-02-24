@@ -1,7 +1,5 @@
 package com.anton.uzhva.megamazz_bot.model;
 
-import com.anton.uzhva.megamazz_bot.util.ExerciseName;
-
 import java.util.Date;
 
 import javax.persistence.*;
@@ -16,15 +14,14 @@ public class Exercise {
     private long id;
 
     @Column(name = "exercise_name")
-    @Enumerated(EnumType.STRING)
     @NotEmpty
-    private ExerciseName name;
+    private String name;
 
     @Column(name = "weight")
     @NotBlank
     private double weight;
 
-    @Column(name="count")
+    @Column(name = "count")
     @NotBlank
     private int count;
 
@@ -32,13 +29,12 @@ public class Exercise {
     @Temporal(TemporalType.TIMESTAMP)
     private Date recordDate;
 
-    @Column(name="week_number")
+    @Column(name = "week_number")
     private int weekNumber;
-
 
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "chat_id")
-     private User user;
+    private User user;
 
     public long getId() {
         return id;
@@ -46,14 +42,6 @@ public class Exercise {
 
     public void setId(long id) {
         this.id = id;
-    }
-
-    public ExerciseName getName() {
-        return name;
-    }
-
-    public void setName(ExerciseName name) {
-        this.name = name;
     }
 
     public double getWeight() {
@@ -96,6 +84,15 @@ public class Exercise {
         this.weekNumber = weekNumber;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
     
+
     
+
 }

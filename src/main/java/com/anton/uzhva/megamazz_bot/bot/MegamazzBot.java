@@ -5,7 +5,7 @@ import com.anton.uzhva.megamazz_bot.model.ExerciseRepo;
 import com.anton.uzhva.megamazz_bot.model.User;
 import com.anton.uzhva.megamazz_bot.model.UserRepo;
 import com.anton.uzhva.megamazz_bot.service.ExerciseSevice;
-import com.anton.uzhva.megamazz_bot.util.ExerciseName;
+import com.anton.uzhva.megamazz_bot.service.UserService;
 import com.vdurmont.emoji.EmojiParser;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,6 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
@@ -27,26 +26,31 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.NoResultException;
+
 @Component
 public class MegamazzBot extends TelegramLongPollingBot {
     @Value("${bot.name}")
     private String botUserName;
     @Value("${bot.token}")
     private String botToken;
-    @Autowired
-    UserRepo userRepo;
 
     @Autowired
-    ExerciseRepo exerciseRepo;
+    private UserRepo userRepo;
 
     @Autowired
-    ExerciseSevice exerciseService;
+    private ExerciseRepo exerciseRepo;
+
+    @Autowired
+    private ExerciseSevice exerciseService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private User user;
 
     private Long resultId = 0L;
-
-    private ExerciseName exerciseName;
-
-    // private Date dateOfFirstRecord = new Date();
 
     @Override
     public void onRegister() {
@@ -69,12 +73,13 @@ public class MegamazzBot extends TelegramLongPollingBot {
         if (update.hasMessage() && update.getMessage().hasText()) {
             Long chatId = update.getMessage().getChatId();
             String userMsg = update.getMessage().getText();
-            divider(userMsg, chatId, update);
+            divider(userMsg, update);
         } else if (update.hasCallbackQuery()) {
             processingCallBackQuery(update);
         }
     }
 
+    
     private void executeEditMsgText(EditMessageText editMessageText) {
         try {
             execute(editMessageText);
@@ -116,13 +121,15 @@ public class MegamazzBot extends TelegramLongPollingBot {
             String userLogin = update.getMessage().getText();
             user.setId(chatId);
             user.setUserLogin(userLogin);
+            user.setDefaultExercises();
             userRepo.save(user);
             executeMsg(greetingToExistUser(chatId, userLogin));
         }
     }
 
-    public void divider(String msg, Long chatId, Update update) {
+    public void divider(String msg, Update update) {
 
+        long chatId = update.getMessage().getChatId();
         if (msg.matches("/start")) {
             Optional<User> user = userRepo.findById(update.getMessage().getChatId());
             if (user.isPresent()) {
@@ -132,33 +139,41 @@ public class MegamazzBot extends TelegramLongPollingBot {
                 executeMsg(greetingToUnregisteredUser(chatId, update));
             }
         } else if (msg.matches("^\\s*\\D+.*")) {
-            registration(chatId, update);
+            if (hasUserCreatedLogin(chatId)) {
+                executeMsg(saveNewExercise(update));
+            } else {
+                registration(chatId, update);
+            }
         } else if (msg.matches("\\s*\\d{1,3}.*")) {
             saveWeightValue(msg);
             executeMsg(selectCountExerciseRepeating(chatId));
         }
-
     }
 
-    public InlineKeyboardMarkup selectExerciseKeyBoard() {
+    public InlineKeyboardMarkup selectExerciseKeyBoard(long chatId) { // TODO: change the methods details related to geting
+                                                           // exersices from DB and transforming it.
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        ExerciseName[] exerciseNames = ExerciseName.values();
+        List<String> exerciseNames = userService.getExerciseList(chatId); // тут нужно вытягивать лист конкретного Entity и делать это через userService
         List<InlineKeyboardButton> row = new ArrayList<>();
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
 
-        for (int i = 0; i < exerciseNames.length; i++) {
+        for (int i = 0; i < exerciseNames.size(); i++) {
             InlineKeyboardButton button = new InlineKeyboardButton();
-            button.setText(exerciseNames[i].getExrcsName());
-            button.setCallbackData(exerciseNames[i].name());
+            button.setText(exerciseNames.get(i));
+            button.setCallbackData(exerciseNames.get(i));
             row.add(button);
             if ((i + 1) % 2 == 0) {
                 rowList.add(row);
                 row = new ArrayList<>();
             }
-            if (i + 1 == exerciseNames.length) {
+            if (i + 1 == exerciseNames.size()) {
                 rowList.add(row);
             }
         }
+        InlineKeyboardButton buttonForAddNewExrcs = new InlineKeyboardButton();
+        buttonForAddNewExrcs.setText("Добавить новое упражнение");
+        buttonForAddNewExrcs.setCallbackData("NEW_EXERCISE");
+        row.add(buttonForAddNewExrcs);
         inlineKeyboardMarkup.setKeyboard(rowList);
         return inlineKeyboardMarkup;
     }
@@ -192,15 +207,14 @@ public class MegamazzBot extends TelegramLongPollingBot {
 
     public void processingCallBackQuery(Update update) { // TODO change some methods parameter => Update update to long
                                                          // chatId
-        String callBackQueryData = update.getCallbackQuery().getData();
         long chatId = update.getCallbackQuery().getMessage().getChatId();
-
+        String callBackQueryData = update.getCallbackQuery().getData();
         if (callBackQueryData.equals("INSERT_RESULT")) {
-            executeEditMsgText(prepareForExerciseSelection(update));
+            executeMsg(prepareForExerciseSelection(update));
         } else if (callBackQueryData.equals("GET_RESULT")) {
             executeMsg(getListOfTrainingWeeks(update));
 
-        } else if (isCallBackQueryExerciseName(callBackQueryData)) {
+        } else if (isCallBackQueryExerciseName(callBackQueryData, chatId)) {
             executeEditMsgText(createResultRecordAndPrepareForGettingValues(update, callBackQueryData));
         } else if (callBackQueryData.matches("\\d{1,3}")) {
             saveCountValue(update);
@@ -213,16 +227,18 @@ public class MegamazzBot extends TelegramLongPollingBot {
             executeMsg(editResultValue(update));
         } else if (callBackQueryData.matches("WEEK-\\d{1,3}")) {
             executeMsg(getTrainingResult(update));
+        } else if (callBackQueryData.matches("NEW_EXERCISE")) {
+            executeMsg(addNewExercise(chatId));
         }
 
     }
 
-    private EditMessageText prepareForExerciseSelection(Update update) {
-        EditMessageText messageText = new EditMessageText();
+    private SendMessage prepareForExerciseSelection(Update update) {
+        long chatId = update.getCallbackQuery().getMessage().getChatId();
+        SendMessage messageText = new SendMessage();
         messageText.setText("Выбери категорию");
-        messageText.setChatId(update.getCallbackQuery().getMessage().getChatId());
-        messageText.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
-        messageText.setReplyMarkup(selectExerciseKeyBoard());
+        messageText.setChatId(chatId);
+        messageText.setReplyMarkup(selectExerciseKeyBoard(chatId));
         return messageText;
     }
 
@@ -231,7 +247,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
         EditMessageText messageText = new EditMessageText();
         User user = userRepo.findById(chatId).get();
         Exercise exercise = new Exercise();
-        exercise.setName(ExerciseName.valueOf(callBackQueryData));
+        exercise.setName(callBackQueryData); // TODO:
         exercise.setUser(user);
 
         if (exerciseService.findAtLeastOneExerciceRecordByUserId(chatId).isEmpty()) {
@@ -255,7 +271,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
         Exercise exercise = exerciseRepo.findById(resultId).get();
         messageText.setText(
                 String.format("Для редактирования упражнения \"%s\" введи максимальный весовой результат с клавиатуры",
-                        exercise.getName().getExrcsName()));
+                        exercise.getName()));
         messageText.setChatId(update.getCallbackQuery().getMessage().getChatId());
         return messageText;
     }
@@ -285,7 +301,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
         EditMessageText editMessageText = new EditMessageText();
         Exercise exercise = exerciseRepo.findById(resultId).get();
         editMessageText.setText(String.format("Отлично! Твой результат в упражнение %s - %.1f кг на %d раз",
-                exercise.getName().getExrcsName(), exercise.getWeight(), exercise.getCount()));
+                exercise.getName(), exercise.getWeight(), exercise.getCount()));
         editMessageText.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
         editMessageText.setChatId(update.getCallbackQuery().getFrom().getId());
         editMessageText.setReplyMarkup(acceptOrChangeResultValue());
@@ -329,9 +345,9 @@ public class MegamazzBot extends TelegramLongPollingBot {
 
     }
 
-    boolean isCallBackQueryExerciseName(String callBackData) {
-        for (ExerciseName value : ExerciseName.values()) {
-            if (callBackData.equals(value.name())) {
+    boolean isCallBackQueryExerciseName(String callBackData, long chatId) {
+        for (String exerciseList : userService.getExerciseList(chatId)) { // тут нужно вытягивать лист конкретного Entity и делать это через userService 
+            if (callBackData.equals(exerciseList)) {
                 return true;
             }
         }
@@ -342,8 +358,12 @@ public class MegamazzBot extends TelegramLongPollingBot {
         long chatId = update.getCallbackQuery().getMessage().getChatId();
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
-        message.setText("Выбирите тренировочную неделю");
-        message.setReplyMarkup(createListOfTrainingWeek(chatId));
+        if (exerciseService.findAtLeastOneExerciceRecordByUserId(chatId).isEmpty()) {
+            message.setText("У вас пока что нет записанных результатов");
+        } else {
+            message.setText("Выбeрите тренировочную неделю");
+            message.setReplyMarkup(createListOfTrainingWeek(chatId));
+        }
         return message;
     }
 
@@ -394,5 +414,31 @@ public class MegamazzBot extends TelegramLongPollingBot {
         message.setText(results.toString());
         return message;
     }
+
+    private SendMessage addNewExercise(long chatId) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText("Введите название нового упражнения. Название должно начинаться с буквы");
+        return message;
+    }
+
+    private boolean hasUserCreatedLogin(long chatId) {
+        try {
+            userService.getUserLogin(chatId);
+        } catch (NoResultException ex) {
+            return false;
+        }
+        return true;
+    }
+
+    private SendMessage saveNewExercise(Update update) {
+        long chatId = update.getMessage().getChatId();
+        SendMessage message = new SendMessage();
+        String exerciseName = update.getMessage().getText();
+      userService.addExercise(chatId, exerciseName);
+        message.setChatId(update.getMessage().getChatId());
+        message.setText("Вы добавили новое упражнение - " + exerciseName);
+        return message;
+    } 
 
 }
