@@ -25,12 +25,6 @@ public class UserService {
         this.userRepo = userRepo;
     }
 
-    // public String getUserExercises(long chatId) {
-    // return (String) eManager.createQuery("SELECT u.exercises FROM user u WHERE
-    // u.chatId=:id")
-    // .setParameter("id", chatId)
-    // .getSingleResult();
-    // }
 
     public String getUserLogin(long chatId) {
         return (String) eManager.createQuery("SELECT u.userLogin FROM user u WHERE u.chatId=:chatId")

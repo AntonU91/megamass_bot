@@ -1,5 +1,6 @@
 package com.anton.uzhva.megamazz_bot.service;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -23,7 +24,7 @@ public class ExerciseSevice {
 
   public List<Exercise> findAllExerciseRecordByUserId(long chatId) {
     return eManager.createQuery("FROM exercise e where e.user.chatId=:id")
-    .setParameter("id", chatId).getResultList();
+        .setParameter("id", chatId).getResultList();
   }
 
   public List<Exercise> findAtLeastOneExerciceRecordByUserId(long chatId) {
@@ -39,14 +40,20 @@ public class ExerciseSevice {
   }
 
   public List<Integer> getListOfTrainingWeeksNumber(long chatId) {
-    return eManager.createQuery("SELECT DISTINCT e.weekNumber FROM exercise e WHERE e.user.chatId=:id ORDER BY e.weekNumber")
+    return eManager
+        .createQuery("SELECT DISTINCT e.weekNumber FROM exercise e WHERE e.user.chatId=:id ORDER BY e.weekNumber")
         .setParameter("id", chatId)
         .getResultList();
   }
 
-  public List<Exercise> getTrainingResult (long chatId, int weekNumber) {
+  public List<Exercise> getTrainingResult(long chatId, int weekNumber) {
     return eManager.createQuery("FROM exercise e WHERE  e.user.chatId=:id AND e.weekNumber=:weekNumber")
-    .setParameter("weekNumber", weekNumber)
-    .setParameter("id", chatId).getResultList();
+        .setParameter("weekNumber", weekNumber)
+        .setParameter("id", chatId).getResultList();
+  }
+
+  public Object findExerciseByRecordDate(Date date) {
+    return eManager.createQuery("FROM exercise e WHERE e.recordDate=:date").setParameter("date", date)
+        .getSingleResult();
   }
 }
