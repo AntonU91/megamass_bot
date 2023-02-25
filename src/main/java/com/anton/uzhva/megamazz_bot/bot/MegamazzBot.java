@@ -16,7 +16,11 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.ArrayList;
@@ -28,6 +32,7 @@ import java.util.Optional;
 
 import javax.persistence.NoResultException;
 
+// TODO Create features to delete specified exercise
 @Component
 public class MegamazzBot extends TelegramLongPollingBot {
     @Value("${bot.name}")
@@ -155,12 +160,10 @@ public class MegamazzBot extends TelegramLongPollingBot {
         }
     }
 
-    public InlineKeyboardMarkup selectExerciseKeyBoard(long chatId) { // TODO: change the methods details related to
-                                                                      // geting
-        // exersices from DB and transforming it.
+    public InlineKeyboardMarkup selectExerciseKeyBoard(long chatId) {
+
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        List<String> exerciseNames = userService.getExerciseList(chatId); // тут нужно вытягивать лист конкретного
-                                                                          // Entity и делать это через userService
+        List<String> exerciseNames = userService.getExerciseList(chatId);
         List<InlineKeyboardButton> row = new ArrayList<>();
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
 
@@ -178,9 +181,14 @@ public class MegamazzBot extends TelegramLongPollingBot {
             }
         }
         InlineKeyboardButton buttonForAddNewExrcs = new InlineKeyboardButton();
+        InlineKeyboardButton buttonToDeleteExrcs = new InlineKeyboardButton();
         buttonForAddNewExrcs.setText("Добавить новое упражнение");
         buttonForAddNewExrcs.setCallbackData("NEW_EXERCISE");
+        buttonToDeleteExrcs.setText("Удалить упражнение");
+        buttonToDeleteExrcs.setCallbackData("DELETE_EXERCISE");
+
         row.add(buttonForAddNewExrcs);
+        row.add(buttonToDeleteExrcs);
         inlineKeyboardMarkup.setKeyboard(rowList);
         return inlineKeyboardMarkup;
     }
@@ -212,8 +220,8 @@ public class MegamazzBot extends TelegramLongPollingBot {
         return inlineKeyboardMarkup;
     }
 
-    public void processingCallBackQuery(Update update) { // TODO change some methods parameter => Update update to long
-                                                         // chatId
+    public void processingCallBackQuery(Update update) {
+
         long chatId = update.getCallbackQuery().getMessage().getChatId();
         String callBackQueryData = update.getCallbackQuery().getData();
         if (callBackQueryData.equals("INSERT_RESULT")) {
@@ -236,6 +244,8 @@ public class MegamazzBot extends TelegramLongPollingBot {
             executeMsg(getTrainingResult(update));
         } else if (callBackQueryData.matches("NEW_EXERCISE")) {
             executeMsg(addNewExercise(chatId));
+        } else if(callBackQueryData.matches("DELETE_EXERCISE")) {
+
         }
 
     }
@@ -357,8 +367,8 @@ public class MegamazzBot extends TelegramLongPollingBot {
     }
 
     boolean isCallBackQueryExerciseName(String callBackData, long chatId) {
-        for (String exerciseList : userService.getExerciseList(chatId)) { // тут нужно вытягивать лист конкретного
-                                                                          // Entity и делать это через userService
+        for (String exerciseList : userService.getExerciseList(chatId)) {
+
             if (callBackData.equals(exerciseList)) {
                 return true;
             }
@@ -467,5 +477,69 @@ public class MegamazzBot extends TelegramLongPollingBot {
         message.setText("Вы добавили новое упражнение - " + exerciseName);
         return message;
     }
+
+    private SendMessage deleteExercise(long chatId) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText("Выберите упражнение, которое нужно удалить внизу екрана");
+        return message;
+        message.setReplyMarkup();
+    }
+
+    private ReplyKeyboardMarkup deleteSpecifiedExercise (long chatId) {
+
+       List<String> exerciseList =  userService.getExerciseList(chatId);
+        KeyboardRow keyboardRow =  new KeyboardRow();
+        List<KeyboardRow> rowList = new ArrayList<>();
+
+        for (int i = 0; i < exerciseList.size(); i++) {
+            KeyboardButton button = new KeyboardButton();
+            button.setText(exerciseList.get(i));
+         //   button.setCallbackData(exerciseNames.get(i));
+            keyboardRow.add(button);
+            if ((i + 1) % 2 == 0) {
+                rowList.add(keyboardRow);
+                keyboardRow = new KeyboardRow();
+            }
+            if (i + 1 == exerciseList.size()) {
+                rowList.add(keyboardRow);
+            }
+        }
+      return   new ReplyKeyboardMarkup()
+                .setKeyboard(rowList);
+    }
+
+//    public InlineKeyboardMarkup selectExerciseKeyBoard(long chatId) {
+//
+//        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+//        List<String> exerciseNames = userService.getExerciseList(chatId);
+//        List<InlineKeyboardButton> row = new ArrayList<>();
+//        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+//
+//        for (int i = 0; i < exerciseNames.size(); i++) {
+//            InlineKeyboardButton button = new InlineKeyboardButton();
+//            button.setText(exerciseNames.get(i));
+//            button.setCallbackData(exerciseNames.get(i));
+//            row.add(button);
+//            if ((i + 1) % 2 == 0) {
+//                rowList.add(row);
+//                row = new ArrayList<>();
+//            }
+//            if (i + 1 == exerciseNames.size()) {
+//                rowList.add(row);
+//            }
+//        }
+//        InlineKeyboardButton buttonForAddNewExrcs = new InlineKeyboardButton();
+//        InlineKeyboardButton buttonToDeleteExrcs = new InlineKeyboardButton();
+//        buttonForAddNewExrcs.setText("Добавить новое упражнение");
+//        buttonForAddNewExrcs.setCallbackData("NEW_EXERCISE");
+//        buttonToDeleteExrcs.setText("Удалить упражнение");
+//        buttonToDeleteExrcs.setCallbackData("DELETE_EXERCISE");
+//
+//        row.add(buttonForAddNewExrcs);
+//        row.add(buttonToDeleteExrcs);
+//        inlineKeyboardMarkup.setKeyboard(rowList);
+//        return inlineKeyboardMarkup;
+//    }
 
 }
