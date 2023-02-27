@@ -7,14 +7,16 @@ import com.anton.uzhva.megamazz_bot.model.UserRepo;
 import com.anton.uzhva.megamazz_bot.service.ExerciseSevice;
 import com.anton.uzhva.megamazz_bot.service.UserService;
 import com.vdurmont.emoji.EmojiParser;
-
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -22,17 +24,13 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Optional;
-
 import javax.persistence.NoResultException;
+import java.util.*;
 
-// TODO Create features to delete specified exercise
+
 @Component
+@Slf4j
+// TODO created features to cancel some actions (delete excersise, add new exercise)
 public class MegamazzBot extends TelegramLongPollingBot {
     @Value("${bot.name}")
     private String botUserName;
@@ -53,11 +51,10 @@ public class MegamazzBot extends TelegramLongPollingBot {
 
     @Autowired
     private User user;
-
     private Long resultId = 0L;
-
     private String chekingText;
     private String exerciseToDelete;
+
 
     @Override
     public void onRegister() {
@@ -145,9 +142,14 @@ public class MegamazzBot extends TelegramLongPollingBot {
             } else {
                 executeMsg(greetingToUnregisteredUser(chatId, update));
             }
+
+
+        } else if (msg.matches("/getresult")) {
+            executeMsg(getListOfTrainingWeeks(update));
         } else if (isPassedMessageExerciseName(msg, chatId)) {
             executeMsg(notifyThatExerciseWasDeleted(msg, chatId));
             userService.deleteSpecifiedExerciseByUserID(msg, chatId);
+
 
         } else if (msg.matches("^\\s*\\D+.*")
                 & chekingText.equals("Введите название нового упражнения. Название должно начинаться с буквы")) {
@@ -394,7 +396,11 @@ public class MegamazzBot extends TelegramLongPollingBot {
 
 
     private SendMessage getListOfTrainingWeeks(Update update) {
-        long chatId = update.getCallbackQuery().getMessage().getChatId();
+        long chatId;
+        if (update.hasMessage() && update.getMessage().hasText()) {
+            chatId = update.getMessage().getChatId();
+        } else chatId = update.getCallbackQuery().getMessage().getChatId();
+
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
         if (exerciseService.findAtLeastOneExerciceRecordByUserId(chatId).isEmpty()) {
@@ -444,7 +450,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
         Integer weekNumber = Integer.parseInt(update.getCallbackQuery().getData().replace("WEEK-", ""));
         List<Exercise> exercisesResult = exerciseService.getTrainingResult(chatId, weekNumber);
 
-        results.append("Тренировочная неделя №" + weekNumber + "\n");
+        results.append("Тренировочная неделя №").append(weekNumber).append("\n");
         for (Exercise temp : exercisesResult) {
             results.append(String.format("Упражнение %s - %.1f кг на %d раз\n", temp.getName(), temp.getWeight(),
                     temp.getCount()));
@@ -492,6 +498,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
         userService.addExercise(chatId, exerciseName);
         message.setChatId(update.getMessage().getChatId());
         message.setText("Вы добавили новое упражнение - " + exerciseName);
+        message.setReplyMarkup(acceptInfo());
         return message;
     }
 
@@ -535,5 +542,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
         message.setReplyMarkup(acceptInfo());
         return message;
     }
+
+   // private ReplyKeyboardMarkup ()
 
 }
