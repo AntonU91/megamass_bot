@@ -93,4 +93,12 @@ public class User {
                 ", userName='" + userLogin + '\'' +
                 '}';
     }
+
+    public String getExercises() {
+        return exercises;
+    }
+
+    public void setExercises(String exercises) {
+        this.exercises = exercises;
+    }
 }

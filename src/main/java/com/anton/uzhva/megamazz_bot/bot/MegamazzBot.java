@@ -145,6 +145,10 @@ public class MegamazzBot extends TelegramLongPollingBot {
             } else {
                 executeMsg(greetingToUnregisteredUser(chatId, update));
             }
+        } else if (isPassedMessageExerciseName(msg, chatId)) {
+            executeMsg(notifyThatExerciseWasDeleted(msg, chatId));
+            userService.deleteSpecifiedExerciseByUserID(msg, chatId);
+
         } else if (msg.matches("^\\s*\\D+.*")
                 & chekingText.equals("Введите название нового упражнения. Название должно начинаться с буквы")) {
             if (hasUserCreatedLogin(chatId)) {
@@ -158,11 +162,8 @@ public class MegamazzBot extends TelegramLongPollingBot {
             saveWeightValue(msg);
             executeMsg(selectCountExerciseRepeating(chatId));
             chekingText = null;
-        } else if (isPassedMessageExerciseName(msg, chatId)) {
-            // TODO method to delete exercise from DB
-            // TODO method to sent a message that specified exrc was deleted and show it name
-           // executeMsg();
         }
+
     }
 
     public InlineKeyboardMarkup selectExerciseKeyBoard(long chatId) {
@@ -382,9 +383,9 @@ public class MegamazzBot extends TelegramLongPollingBot {
         return false;
     }
 
-    boolean isPassedMessageExerciseName ( String message,long chatId) {
-        for (String exerciseList : userService.getExerciseList(chatId)) {
-            if (message.equals(exerciseList)) {
+    boolean isPassedMessageExerciseName(String message, long chatId) {
+        for (String exercise : userService.getExerciseList(chatId)) {
+            if (message.matches("\\s*" + exercise)) {
                 return true;
             }
         }
@@ -526,4 +527,13 @@ public class MegamazzBot extends TelegramLongPollingBot {
         keyboardMarkup.setOneTimeKeyboard(true);
         return keyboardMarkup;
     }
+
+    private SendMessage notifyThatExerciseWasDeleted(String messageToDelete, long chatId) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText(String.format("Упражнение \"%s\" удалено ", messageToDelete));
+        message.setReplyMarkup(acceptInfo());
+        return message;
+    }
+
 }

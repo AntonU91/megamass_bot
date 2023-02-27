@@ -39,7 +39,7 @@ public class UserService {
         String exercises = (String) eManager.createQuery("SELECT u.exercises FROM user u WHERE u.chatId=:id")
                 .setParameter("id", chatId)
                 .getSingleResult();
-        exercises += " ," + newExercise;
+        exercises += ", " + newExercise;
         user.addExercise(newExercise);
         userRepo.save(user);
     }
@@ -49,12 +49,21 @@ public class UserService {
         String exercises = (String) eManager.createQuery("SELECT u.exercises FROM user u WHERE u.chatId=:id")
                 .setParameter("id", chatId)
                 .getSingleResult();
-        System.out.println(exercises);
-        String[] strArr = exercises.split(",");
+        System.out.println(exercises); /// just for log
+        String[] strArr = exercises.split(",\\s*");
         for (String temp : strArr) {
             exerciseList.add(temp);
         }
         return exerciseList;
+    }
+
+    @Transactional
+    public void deleteSpecifiedExerciseByUserID(String exerciseToDelete, long chatId) {
+        User user = userRepo.findById(chatId).get();
+        String exrcises = user.getExercises()
+                .replaceAll("\\s*"+exerciseToDelete + ",?", "");
+        user.setExercises(exrcises);
+        userRepo.save(user);
     }
 
 }
