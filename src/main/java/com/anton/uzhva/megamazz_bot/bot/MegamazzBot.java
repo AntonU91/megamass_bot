@@ -31,6 +31,8 @@ import java.util.*;
 @Component
 @Slf4j
 // TODO created features to cancel some actions (delete excersise, add new exercise)
+// cancel - cancel current action
+// getResult - show trainings result records
 public class MegamazzBot extends TelegramLongPollingBot {
     @Value("${bot.name}")
     private String botUserName;
@@ -146,7 +148,11 @@ public class MegamazzBot extends TelegramLongPollingBot {
 
         } else if (msg.matches("/getresult")) {
             executeMsg(getListOfTrainingWeeks(update));
-        } else if (isPassedMessageExerciseName(msg, chatId)) {
+        }  else if (msg.matches(("/cancel"))) {
+            executeMsg(acceptResultIndicators(update));
+        }
+
+        else if (isPassedMessageExerciseName(msg, chatId)) {
             executeMsg(notifyThatExerciseWasDeleted(msg, chatId));
             userService.deleteSpecifiedExerciseByUserID(msg, chatId);
 
@@ -245,7 +251,6 @@ public class MegamazzBot extends TelegramLongPollingBot {
 
         } else if (callBackQueryData.equals("OK")) {
             executeMsg(acceptResultIndicators(update));
-
         } else if (callBackQueryData.matches("EDIT")) {
             executeMsg(editResultValue(update));
         } else if (callBackQueryData.matches("WEEK-\\d{1,3}")) {
@@ -254,6 +259,8 @@ public class MegamazzBot extends TelegramLongPollingBot {
             executeMsg(addNewExercise(chatId));
         } else if (callBackQueryData.matches("DELETE_EXERCISE")) {
             executeMsg(deleteExercise(chatId));
+        } else if (callBackQueryData.matches("CANCEL")) {
+            executeMsg(acceptResultIndicators(update));
         }
 
     }
@@ -287,7 +294,8 @@ public class MegamazzBot extends TelegramLongPollingBot {
         System.out.println(exercise.getWeight());
 
         resultId = exercise.getId();
-        chekingText = "Введи максимальный весовой результат с клавиатуры";
+        chekingText = "Введи максимальный весовой результат с клавиатуры"; /// TODO Put cancel button here
+        messageText.setReplyMarkup(cancelAction());
         messageText.setText(chekingText);
         messageText.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
         messageText.setChatId(chatId);
@@ -309,7 +317,9 @@ public class MegamazzBot extends TelegramLongPollingBot {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setText("Продолжаем!");
         sendMessage.setReplyMarkup(selector());
-        sendMessage.setChatId(update.getCallbackQuery().getMessage().getChatId());
+        if (update.hasCallbackQuery()) {
+        sendMessage.setChatId(update.getCallbackQuery().getMessage().getChatId()); }
+        else  sendMessage.setChatId(update.getMessage().getChatId());
         return sendMessage;
     }
 
@@ -479,6 +489,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
         message.setChatId(chatId);
         chekingText = "Введите название нового упражнения. Название должно начинаться с буквы";
         message.setText(chekingText);
+        message.setReplyMarkup(cancelAction());
         return message;
     }
 
@@ -543,6 +554,18 @@ public class MegamazzBot extends TelegramLongPollingBot {
         return message;
     }
 
-   // private ReplyKeyboardMarkup ()
+    private InlineKeyboardMarkup cancelAction() {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        InlineKeyboardButton OK_Button = new InlineKeyboardButton();
+        OK_Button.setText("Cancel");
+        OK_Button.setCallbackData("CANCEL");
+        List<InlineKeyboardButton> row1 = new ArrayList<>();
+        row1.add(OK_Button);
+        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+        rowList.add(row1);
+        inlineKeyboardMarkup.setKeyboard(rowList);
+        return inlineKeyboardMarkup;
+    }
+
 
 }
