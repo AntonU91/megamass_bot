@@ -33,7 +33,7 @@ import java.util.*;
 
 @Component
 @Slf4j
-// TODO implement opportunity to delete all exercises record and save them to .txt file beforehand with futher receiving this file to the user
+// TODO implement opportunity to delete all exercises record and save them to .txt file beforehand with further receiving this file to the user
 // cancel - cancel current action
 // getresult - show trainings result records
 // getresultsfile- create tx file with trainings results records
@@ -603,7 +603,6 @@ public class MegamazzBot extends TelegramLongPollingBot {
         SendDocument document = new SendDocument();
         document.setChatId(chatId);
         document.setDocument(inputFile);
-        fileCounter++;
         return document;
     }
 
