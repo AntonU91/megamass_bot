@@ -276,7 +276,6 @@ public class MegamazzBot extends TelegramLongPollingBot {
         Long chatId = update.getCallbackQuery().getMessage().getChatId();
         EditMessageText messageText = new EditMessageText();
         currentExerciseRecord.setName(callBackQueryData); //
-      //  currentExerciseRecord.setUser(user);
         Date recordingDate = new Date();
         currentExerciseRecord.setRecordDate(recordingDate);
         if (exerciseService.findAtLeastOneExerciceRecordByUserId(chatId).isEmpty()) {
@@ -284,12 +283,6 @@ public class MegamazzBot extends TelegramLongPollingBot {
         } else {
             currentExerciseRecord.setWeekNumber(defineTheWeeksOfTraining(currentExerciseRecord.getRecordDate(), chatId));
         }
-       // exerciseRepo.save(exercise); // TODO incapsulate this method in exerciseService
-
-//        exercise = (Exercise) exerciseService.findExerciseByRecordDate(recordingDate); // just for log
-//        System.out.println(exercise.getWeight()); // just for log
-//
-//        resultId = exercise.getId();
         chekingText = "Введи максимальный весовой результат с клавиатуры"; /// TODO Put cancel button here
         messageText.setReplyMarkup(cancelAction());
         messageText.setText(chekingText);
@@ -320,29 +313,22 @@ public class MegamazzBot extends TelegramLongPollingBot {
     }
 
     public void saveWeightValue(String msg) {
-        //Exercise exercise = exerciseRepo.findById(resultId).get();
         currentExerciseRecord.setWeight(Double.parseDouble(msg));
-        //exerciseRepo.save(exercise);
     }
 
     public void saveCountValue(Update update) {
-
-       // Exercise exercise = new Exercise();
-        // Exercise exercise = exerciseRepo.findById(resultId).get();
         int count = Integer.parseInt(update.getCallbackQuery().getData());
         currentExerciseRecord.setCount(count);
 
-//        Exercise exercise =  new Exercise();
-//        exerciseRepo.save(exercise);
-//        Exercise modifiedExercise = exerciseService.(update.getCallbackQuery().getMessage().getChatId()).get();
-
     }
 
-    private  void saveExcerciseResult(Update update) {
+    private void saveExcerciseResult(Update update) {
         User user = userRepo.findById(update.getCallbackQuery().getMessage().getChatId()).get();
         currentExerciseRecord.setUser(user);
         exerciseRepo.save(currentExerciseRecord);
-        currentExerciseRecord = null;
+        Exercise retrievedResult = (Exercise) exerciseService.findExerciseByRecordDate(currentExerciseRecord.getRecordDate());
+        resultId = retrievedResult.getId();
+        currentExerciseRecord = new Exercise();
     }
 
     public EditMessageText showExerciseResultAfterInputingDates(Update update) {
@@ -390,7 +376,6 @@ public class MegamazzBot extends TelegramLongPollingBot {
         rowList.add(row);
         inlineKeyboardMarkup.setKeyboard(rowList);
         return inlineKeyboardMarkup;
-
     }
 
 
