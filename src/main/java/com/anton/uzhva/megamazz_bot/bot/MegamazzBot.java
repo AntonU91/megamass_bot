@@ -12,8 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -23,14 +25,18 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import javax.persistence.NoResultException;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 
 @Component
 @Slf4j
-// TODO created features to cancel some actions (delete excersise, add new exercise)
+// TODO implement opportunity to delete all exercises record and save them to .txt file beforehand with futher receiving this file to the user
 // cancel - cancel current action
-// getResult - show trainings result records
+// getresult - show trainings result records
+// getresultsfile- create tx file with trainings results records
 public class MegamazzBot extends TelegramLongPollingBot {
     @Value("${bot.name}")
     private String botUserName;
@@ -54,6 +60,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
     private Long resultId = 0L;
     private String chekingText;
     private String exerciseToDelete;
+    private int fileCounter = 1;
     @Autowired
     Exercise currentExerciseRecord;
 
@@ -144,8 +151,12 @@ public class MegamazzBot extends TelegramLongPollingBot {
             } else {
                 executeMsg(greetingToUnregisteredUser(chatId, update));
             }
-
-
+        } else if (msg.equals("/getresultsfile")) {
+            try {
+                execute(createFileAndWriteThereAllRecords(chatId));
+            } catch (TelegramApiException | IOException e) {
+                log.error("Problem with file creating " + e.getMessage());
+            }
         } else if (msg.matches("/getresult")) {
             executeMsg(getListOfTrainingWeeks(update));
         } else if (msg.matches(("/cancel"))) {
@@ -452,7 +463,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
         StringBuilder results = new StringBuilder();
         long chatId = update.getCallbackQuery().getMessage().getChatId();
         Integer weekNumber = Integer.parseInt(update.getCallbackQuery().getData().replace("WEEK-", ""));
-        List<Exercise> exercisesResult = exerciseService.getTrainingResult(chatId, weekNumber);
+        List<Exercise> exercisesResult = exerciseService.getTrainingResultOfConcreteWeek(chatId, weekNumber);
         results.append("Тренировочная неделя №").append(weekNumber).append("\n").append("\n");
         for (Exercise temp : exercisesResult) {
             results.append(String.format("Упражнение %s - %.1f кг на %d раз\n", temp.getName(), temp.getWeight(),
@@ -558,6 +569,42 @@ public class MegamazzBot extends TelegramLongPollingBot {
         rowList.add(row1);
         inlineKeyboardMarkup.setKeyboard(rowList);
         return inlineKeyboardMarkup;
+    }
+
+    private SendDocument createFileAndWriteThereAllRecords(long chatId) throws IOException {
+
+        List<Exercise> exerciseList = exerciseService.getAllTrainingsResults(chatId);
+
+        java.io.File file = new File("results" + fileCounter + ".txt");
+        FileWriter writer = new FileWriter(file);
+        StringBuilder stringBuilder = new StringBuilder();
+        int counter = 1;
+        stringBuilder.append("1 тренировочная неделя").append("\n");
+        for (Exercise exercise : exerciseList) {
+            if (exercise.getWeekNumber() > counter) {
+                counter = exercise.getWeekNumber();
+                stringBuilder.append("\n")
+                        .append(exercise.getWeekNumber())
+                        .append(" тренировочная неделя")
+                        .append("\n");
+            }
+            stringBuilder.append(exercise.getName())
+                    .append(" , ")
+                    .append(exercise.getWeight())
+                    .append(" кг на ")
+                    .append(exercise.getCount()).append(" раз, ")
+                    .append(exercise.getWeekNumber())
+                    .append(" неделя")
+                    .append("\n");
+        }
+        writer.write(stringBuilder.toString());
+        writer.close();
+        InputFile inputFile = new InputFile(file);
+        SendDocument document = new SendDocument();
+        document.setChatId(chatId);
+        document.setDocument(inputFile);
+        fileCounter++;
+        return document;
     }
 
 

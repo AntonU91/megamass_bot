@@ -46,7 +46,7 @@ public class ExerciseSevice {
         .getResultList();
   }
 
-  public List<Exercise> getTrainingResult(long chatId, int weekNumber) {
+  public List<Exercise> getTrainingResultOfConcreteWeek(long chatId, int weekNumber) {
     return eManager.createQuery("FROM exercise e WHERE  e.user.chatId=:id AND e.weekNumber=:weekNumber ORDER BY e.name, e.weight")
         .setParameter("weekNumber", weekNumber)
         .setParameter("id", chatId).getResultList();
@@ -55,5 +55,10 @@ public class ExerciseSevice {
   public Object findExerciseByRecordDate(Date date) {
     return eManager.createQuery("FROM exercise e WHERE e.recordDate=:date").setParameter("date", date)
         .getSingleResult();
+  }
+
+  public List<Exercise> getAllTrainingsResults(long chatId) {
+    return eManager.createQuery("FROM exercise e WHERE  e.user.chatId=:id ORDER BY e.weekNumber, e.name, e.weight")
+            .setParameter("id", chatId).getResultList();
   }
 }
