@@ -453,8 +453,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
         long chatId = update.getCallbackQuery().getMessage().getChatId();
         Integer weekNumber = Integer.parseInt(update.getCallbackQuery().getData().replace("WEEK-", ""));
         List<Exercise> exercisesResult = exerciseService.getTrainingResult(chatId, weekNumber);
-
-        results.append("Тренировочная неделя №").append(weekNumber).append("\n");
+        results.append("Тренировочная неделя №").append(weekNumber).append("\n").append("\n");
         for (Exercise temp : exercisesResult) {
             results.append(String.format("Упражнение %s - %.1f кг на %d раз\n", temp.getName(), temp.getWeight(),
                     temp.getCount()));
