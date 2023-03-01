@@ -12,11 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -56,6 +54,8 @@ public class MegamazzBot extends TelegramLongPollingBot {
     private Long resultId = 0L;
     private String chekingText;
     private String exerciseToDelete;
+    @Autowired
+    Exercise currentExerciseRecord;
 
 
     @Override
@@ -148,11 +148,9 @@ public class MegamazzBot extends TelegramLongPollingBot {
 
         } else if (msg.matches("/getresult")) {
             executeMsg(getListOfTrainingWeeks(update));
-        }  else if (msg.matches(("/cancel"))) {
+        } else if (msg.matches(("/cancel"))) {
             executeMsg(acceptResultIndicators(update));
-        }
-
-        else if (isPassedMessageExerciseName(msg, chatId)) {
+        } else if (isPassedMessageTextExerciseName(msg, chatId)) {
             executeMsg(notifyThatExerciseWasDeleted(msg, chatId));
             userService.deleteSpecifiedExerciseByUserID(msg, chatId);
 
@@ -165,7 +163,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
                 registration(chatId, update);
             }
             chekingText = null;
-        } else if (msg.matches("\\s*\\d{1,3}.*") &
+        } else if (msg.matches("\\s*\\d{1,3}") &
                 chekingText.equals("Введи максимальный весовой результат с клавиатуры")) {
             saveWeightValue(msg);
             executeMsg(selectCountExerciseRepeating(chatId));
@@ -243,12 +241,12 @@ public class MegamazzBot extends TelegramLongPollingBot {
         } else if (callBackQueryData.equals("GET_RESULT")) {
             executeMsg(getListOfTrainingWeeks(update));
 
-        } else if (isCallBackQueryExerciseName(callBackQueryData, chatId)) {
+        } else if (isCallBackQueryDataExerciseName(callBackQueryData, chatId)) {
             executeEditMsgText(createResultRecordAndPrepareForGettingValues(update, callBackQueryData));
         } else if (callBackQueryData.matches("\\d{1,3}")) {
             saveCountValue(update);
+            saveExcerciseResult(update);
             executeEditMsgText(showExerciseResultAfterInputingDates(update));
-
         } else if (callBackQueryData.equals("OK")) {
             executeMsg(acceptResultIndicators(update));
         } else if (callBackQueryData.matches("EDIT")) {
@@ -277,23 +275,21 @@ public class MegamazzBot extends TelegramLongPollingBot {
     private EditMessageText createResultRecordAndPrepareForGettingValues(Update update, String callBackQueryData) {
         Long chatId = update.getCallbackQuery().getMessage().getChatId();
         EditMessageText messageText = new EditMessageText();
-        User user = userRepo.findById(chatId).get();
-        Exercise exercise = new Exercise();
-        exercise.setName(callBackQueryData); //
-        exercise.setUser(user);
+        currentExerciseRecord.setName(callBackQueryData); //
+      //  currentExerciseRecord.setUser(user);
         Date recordingDate = new Date();
-        exercise.setRecordDate(new Date());
+        currentExerciseRecord.setRecordDate(recordingDate);
         if (exerciseService.findAtLeastOneExerciceRecordByUserId(chatId).isEmpty()) {
-            exercise.setWeekNumber(1);
+            currentExerciseRecord.setWeekNumber(1);
         } else {
-            exercise.setWeekNumber(defineTheWeeksOfTrainingProcess(exercise.getRecordDate(), chatId));
+            currentExerciseRecord.setWeekNumber(defineTheWeeksOfTraining(currentExerciseRecord.getRecordDate(), chatId));
         }
-        exerciseRepo.save(exercise);
+       // exerciseRepo.save(exercise); // TODO incapsulate this method in exerciseService
 
-        exercise = (Exercise) exerciseService.findExerciseByRecordDate(recordingDate);
-        System.out.println(exercise.getWeight());
-
-        resultId = exercise.getId();
+//        exercise = (Exercise) exerciseService.findExerciseByRecordDate(recordingDate); // just for log
+//        System.out.println(exercise.getWeight()); // just for log
+//
+//        resultId = exercise.getId();
         chekingText = "Введи максимальный весовой результат с клавиатуры"; /// TODO Put cancel button here
         messageText.setReplyMarkup(cancelAction());
         messageText.setText(chekingText);
@@ -318,22 +314,35 @@ public class MegamazzBot extends TelegramLongPollingBot {
         sendMessage.setText("Продолжаем!");
         sendMessage.setReplyMarkup(selector());
         if (update.hasCallbackQuery()) {
-        sendMessage.setChatId(update.getCallbackQuery().getMessage().getChatId()); }
-        else  sendMessage.setChatId(update.getMessage().getChatId());
+            sendMessage.setChatId(update.getCallbackQuery().getMessage().getChatId());
+        } else sendMessage.setChatId(update.getMessage().getChatId());
         return sendMessage;
     }
 
     public void saveWeightValue(String msg) {
-        Exercise exercise = exerciseRepo.findById(resultId).get();
-        exercise.setWeight(Double.parseDouble(msg));
-        exerciseRepo.save(exercise);
+        //Exercise exercise = exerciseRepo.findById(resultId).get();
+        currentExerciseRecord.setWeight(Double.parseDouble(msg));
+        //exerciseRepo.save(exercise);
     }
 
     public void saveCountValue(Update update) {
-        Exercise exercise = exerciseRepo.findById(resultId).get();
+
+       // Exercise exercise = new Exercise();
+        // Exercise exercise = exerciseRepo.findById(resultId).get();
         int count = Integer.parseInt(update.getCallbackQuery().getData());
-        exercise.setCount(count);
-        exerciseRepo.save(exercise);
+        currentExerciseRecord.setCount(count);
+
+//        Exercise exercise =  new Exercise();
+//        exerciseRepo.save(exercise);
+//        Exercise modifiedExercise = exerciseService.(update.getCallbackQuery().getMessage().getChatId()).get();
+
+    }
+
+    private  void saveExcerciseResult(Update update) {
+        User user = userRepo.findById(update.getCallbackQuery().getMessage().getChatId()).get();
+        currentExerciseRecord.setUser(user);
+        exerciseRepo.save(currentExerciseRecord);
+        currentExerciseRecord = null;
     }
 
     public EditMessageText showExerciseResultAfterInputingDates(Update update) {
@@ -385,7 +394,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
     }
 
 
-    boolean isCallBackQueryExerciseName(String callBackData, long chatId) {
+    boolean isCallBackQueryDataExerciseName(String callBackData, long chatId) {
         for (String exerciseList : userService.getExerciseList(chatId)) {
 
             if (callBackData.equals(exerciseList)) {
@@ -395,7 +404,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
         return false;
     }
 
-    boolean isPassedMessageExerciseName(String message, long chatId) {
+    boolean isPassedMessageTextExerciseName(String message, long chatId) {
         for (String exercise : userService.getExerciseList(chatId)) {
             if (message.matches("\\s*" + exercise)) {
                 return true;
@@ -422,7 +431,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
         return message;
     }
 
-    private int defineTheWeeksOfTrainingProcess(Date date, long chatId) {
+    private int defineTheWeeksOfTraining(Date date, long chatId) {
         Exercise exercise = (Exercise) exerciseService.getTheErliestRecord(chatId);
         GregorianCalendar gregorianCalendar = new GregorianCalendar();
         GregorianCalendar gregorianCalendar2 = new GregorianCalendar();

@@ -1,15 +1,18 @@
 package com.anton.uzhva.megamazz_bot.model;
 
+import org.springframework.stereotype.Component;
+
 import java.util.Date;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 
+@Component
 @Entity(name = "exercise")
 public class Exercise {
     @Id
-    @Column(name = "id")
+    @Column(name = "id", unique = true)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 

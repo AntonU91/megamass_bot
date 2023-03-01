@@ -72,9 +72,6 @@ public class User {
         this.chatId = id;
     }
 
-    // public List<String> getExerciseList() {
-    // return userExercises;
-    // }
 
     public void setDefaultExercises() {
         exercises = createExersises(DEFAULT_EXERCISES);
