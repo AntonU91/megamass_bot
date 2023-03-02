@@ -33,12 +33,15 @@ import java.util.*;
 
 @Component
 @Slf4j
-// TODO implement opportunity to delete all exercises record and save them to .txt file beforehand with further receiving this file to the use
+
 // TODO Find out aproach how to delete file with training results from project directory
-//TODO Fix the issue  with adding new exercise (PROBLEM - you can not add more than one new exercise)
-// cancel - cancel current action
-// getresult - show trainings result records
-// getresultsfile- create tx file with trainings results records
+/*
+cancel - cancel current action
+getresult - show trainings result records
+getresultsfile- create txt file with trainings results records
+deleteresults - delete all trainings results
+*/
+
 public class MegamazzBot extends TelegramLongPollingBot {
     @Value("${bot.name}")
     private String botUserName;
@@ -106,7 +109,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {
-            e.printStackTrace();
+            log.error("Error of processing message " + e.getMessage());
         }
     }
 
@@ -143,7 +146,6 @@ public class MegamazzBot extends TelegramLongPollingBot {
     }
 
     public void divider(String msg, Update update) {
-
         long chatId = update.getMessage().getChatId();
         if (msg.matches("/start")) {
             Optional<User> user = userRepo.findById(update.getMessage().getChatId());
@@ -163,11 +165,11 @@ public class MegamazzBot extends TelegramLongPollingBot {
             executeMsg(getListOfTrainingWeeks(update));
         } else if (msg.matches(("/cancel"))) {
             executeMsg(acceptResultIndicators(update));
+        } else if (msg.equals("/deleteresults")) {
+            executeMsg(deleteAllTrainingResult(chatId));
         } else if (isPassedMessageTextExerciseName(msg, chatId)) {
             executeMsg(notifyThatExerciseWasDeleted(msg, chatId));
             userService.deleteSpecifiedExerciseByUserID(msg, chatId);
-
-
         } else if (msg.matches("^\\s*\\D+.*")
                 & chekingText.equals("Введите название нового упражнения. Название должно начинаться с буквы")) {
             if (hasUserCreatedLogin(chatId)) {
@@ -182,7 +184,38 @@ public class MegamazzBot extends TelegramLongPollingBot {
             executeMsg(selectCountExerciseRepeating(chatId));
             chekingText = null;
         }
+    }
 
+    public void processingCallBackQuery(Update update) {
+        long chatId = update.getCallbackQuery().getMessage().getChatId();
+        String callBackQueryData = update.getCallbackQuery().getData();
+        if (callBackQueryData.equals("INSERT_RESULT")) {
+            executeMsg(prepareForExerciseSelection(update));
+        } else if (callBackQueryData.equals("GET_RESULT")) {
+            executeMsg(getListOfTrainingWeeks(update));
+
+        } else if (isCallBackQueryDataExerciseName(callBackQueryData, chatId)) {
+            executeEditMsgText(createResultRecordAndPrepareForGettingValues(update, callBackQueryData));
+        } else if (callBackQueryData.matches("\\d{1,3}")) {
+            saveCountValue(update);
+            saveExcerciseResult(update);
+            executeEditMsgText(showExerciseResultAfterInputingDates(update));
+        } else if (callBackQueryData.equals("OK")) {
+            executeMsg(acceptResultIndicators(update));
+        } else if (callBackQueryData.matches("EDIT")) {
+            executeMsg(editResultValue(update));
+        } else if (callBackQueryData.matches("WEEK-\\d{1,3}")) {
+            executeMsg(getTrainingResult(update));
+        } else if (callBackQueryData.matches("NEW_EXERCISE")) {
+            executeMsg(addNewExercise(chatId));
+        } else if (callBackQueryData.matches("DELETE_EXERCISE")) {
+            executeMsg(deleteExercise(chatId));
+        } else if (callBackQueryData.matches("CANCEL")) {
+            executeMsg(acceptResultIndicators(update));
+        } else if (callBackQueryData.equals("DELETE_RESULTS")) {
+            exerciseService.deleteAllUserTrainingsResults(chatId);
+            executeMsg(acceptResultIndicators(update));
+        }
     }
 
     public InlineKeyboardMarkup selectExerciseKeyBoard(long chatId) {
@@ -191,7 +224,6 @@ public class MegamazzBot extends TelegramLongPollingBot {
         List<String> exerciseNames = userService.getExerciseList(chatId);
         List<InlineKeyboardButton> row = new ArrayList<>();
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
-
         for (int i = 0; i < exerciseNames.size(); i++) {
             InlineKeyboardButton button = new InlineKeyboardButton();
             button.setText(exerciseNames.get(i));
@@ -246,36 +278,6 @@ public class MegamazzBot extends TelegramLongPollingBot {
         return inlineKeyboardMarkup;
     }
 
-    public void processingCallBackQuery(Update update) {
-
-        long chatId = update.getCallbackQuery().getMessage().getChatId();
-        String callBackQueryData = update.getCallbackQuery().getData();
-        if (callBackQueryData.equals("INSERT_RESULT")) {
-            executeMsg(prepareForExerciseSelection(update));
-        } else if (callBackQueryData.equals("GET_RESULT")) {
-            executeMsg(getListOfTrainingWeeks(update));
-
-        } else if (isCallBackQueryDataExerciseName(callBackQueryData, chatId)) {
-            executeEditMsgText(createResultRecordAndPrepareForGettingValues(update, callBackQueryData));
-        } else if (callBackQueryData.matches("\\d{1,3}")) {
-            saveCountValue(update);
-            saveExcerciseResult(update);
-            executeEditMsgText(showExerciseResultAfterInputingDates(update));
-        } else if (callBackQueryData.equals("OK")) {
-            executeMsg(acceptResultIndicators(update));
-        } else if (callBackQueryData.matches("EDIT")) {
-            executeMsg(editResultValue(update));
-        } else if (callBackQueryData.matches("WEEK-\\d{1,3}")) {
-            executeMsg(getTrainingResult(update));
-        } else if (callBackQueryData.matches("NEW_EXERCISE")) {
-            executeMsg(addNewExercise(chatId));
-        } else if (callBackQueryData.matches("DELETE_EXERCISE")) {
-            executeMsg(deleteExercise(chatId));
-        } else if (callBackQueryData.matches("CANCEL")) {
-            executeMsg(acceptResultIndicators(update));
-        }
-
-    }
 
     private SendMessage prepareForExerciseSelection(Update update) {
         long chatId = update.getCallbackQuery().getMessage().getChatId();
@@ -297,7 +299,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
         } else {
             currentExerciseRecord.setWeekNumber(defineTheWeeksOfTraining(currentExerciseRecord.getRecordDate(), chatId));
         }
-        chekingText = "Введи максимальный весовой результат с клавиатуры"; /// TODO Put cancel button here
+        chekingText = "Введи максимальный весовой результат с клавиатуры";
         messageText.setReplyMarkup(cancelAction());
         messageText.setText(chekingText);
         messageText.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
@@ -391,7 +393,6 @@ public class MegamazzBot extends TelegramLongPollingBot {
         inlineKeyboardMarkup.setKeyboard(rowList);
         return inlineKeyboardMarkup;
     }
-
 
     boolean isCallBackQueryDataExerciseName(String callBackData, long chatId) {
         for (String exerciseList : userService.getExerciseList(chatId)) {
@@ -575,9 +576,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
     }
 
     private SendDocument createFileAndWriteThereAllRecords(long chatId) throws IOException {
-
         List<Exercise> exerciseList = exerciseService.getAllTrainingsResults(chatId);
-
         java.io.File file = new File("results" + fileCounter + ".txt");
         FileWriter writer = new FileWriter(file);
         StringBuilder stringBuilder = new StringBuilder();
@@ -608,5 +607,30 @@ public class MegamazzBot extends TelegramLongPollingBot {
         return document;
     }
 
+    private SendMessage deleteAllTrainingResult(long chatId) {
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText("Ви впевнені, що хочете видалити всі записи результатів тренувань?\n" +
+                "Рекомендую зберегти результати перед видаленням командою /getresultsfile");
+        message.setReplyMarkup(acceptOrCancel());
+        return message;
+    }
+
+    public InlineKeyboardMarkup acceptOrCancel() {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        InlineKeyboardButton buttonSeeResults = new InlineKeyboardButton();
+        InlineKeyboardButton buttonInsertNewResults = new InlineKeyboardButton();
+        buttonSeeResults.setText("Так");
+        buttonSeeResults.setCallbackData("DELETE_RESULTS");
+        buttonInsertNewResults.setText("Ні");
+        buttonInsertNewResults.setCallbackData("CANCEL");
+        List<InlineKeyboardButton> row = new ArrayList<>();
+        row.add(buttonSeeResults);
+        row.add(buttonInsertNewResults);
+        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+        rowList.add(row);
+        inlineKeyboardMarkup.setKeyboard(rowList);
+        return inlineKeyboardMarkup;
+    }
 
 }

@@ -64,8 +64,8 @@ public class ExerciseSevice {
 
   @Transactional
   public void deleteAllUserTrainingsResults(long chatId) {
-    eManager.createQuery("DELETE FROM exercise e WHERE e.user.chaId=:chatId")
-            .setParameter("chatId", chatId);
+    eManager.createQuery("DELETE FROM exercise e WHERE e.user.chatId=:chatId")
+            .setParameter("chatId", chatId).executeUpdate();
   }
 
 }
