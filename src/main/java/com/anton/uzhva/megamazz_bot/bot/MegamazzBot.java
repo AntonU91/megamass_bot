@@ -35,6 +35,7 @@ import java.util.*;
 @Slf4j
 // TODO implement opportunity to delete all exercises record and save them to .txt file beforehand with further receiving this file to the use
 // TODO Find out aproach how to delete file with training results from project directory
+//TODO Fix the issue  with adding new exercise (PROBLEM - you can not add more than one new exercise)
 // cancel - cancel current action
 // getresult - show trainings result records
 // getresultsfile- create tx file with trainings results records

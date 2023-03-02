@@ -36,7 +36,7 @@ public class User {
     @Transient
     private ArrayList<String> userExercises = new ArrayList<>(DEFAULT_EXERCISES);
 
-    private  String createExersises(List<String> exercises) {
+    private String createExersises(List<String> exercises) {
         String str = new String();
         for (int i = 0; i < exercises.size(); i++) {
             if (i == exercises.size() - 1) {
@@ -78,8 +78,7 @@ public class User {
     }
 
     public void addExercise(String newExercise) {
-        userExercises.add(newExercise);
-        exercises = createExersises(userExercises);
+        exercises += newExercise + ", ";
     }
 
     @Override
