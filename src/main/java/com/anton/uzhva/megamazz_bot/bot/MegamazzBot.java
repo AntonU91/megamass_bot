@@ -171,6 +171,10 @@ public class MegamazzBot extends TelegramLongPollingBot {
             if (hasUserCreatedLogin(chatId)) {
                 executeMsg(prepareForExerciseSelection(update));
             } else executeMsg(askToCreateLogin(update));
+        } else if (msg.equals("Добавить упражнение")) {
+            executeMsg(addNewExercise(chatId));
+        } else if (msg.equals("Удалить упражнение")) {
+            executeMsg(deleteExercise(chatId));
         } else if (msg.matches("^\\s*\\D+.*")
                 & checkingText.equals("Введите название нового упражнения. Название должно начинаться с буквы")) {
             if (hasUserCreatedLogin(chatId)) {
@@ -179,7 +183,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
             checkingText = "NONE";
         } else if (msg.matches("^\\s*\\D+.*") & checkingText.equals("REGISTRATION")) {
             registration(chatId, update);
-            checkingText= "NONE";
+            checkingText = "NONE";
         } else if (msg.matches("\\s*\\d{1,3}") &
                 checkingText.equals("Введи максимальный весовой результат с клавиатуры")) {
             saveWeightValue(msg);
@@ -204,9 +208,6 @@ public class MegamazzBot extends TelegramLongPollingBot {
             executeMsg(getListOfTrainingWeeks(update));
 
         }
-//        else if (isCallBackQueryDataExerciseName(callBackQueryData, chatId)) {
-//            executeEditMsgText(createResultRecordAndPrepareForGettingValues(update, callBackQueryData));
-//        }
         else if (callBackQueryData.matches("\\d{1,3}")) {
             saveCountValue(update);
             saveExcerciseResult(update);
@@ -217,11 +218,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
             executeMsg(editResultValue(update));
         } else if (callBackQueryData.matches("WEEK-\\d{1,3}")) {
             executeMsg(getTrainingResult(update));
-        } else if (callBackQueryData.matches("NEW_EXERCISE")) {
-            executeMsg(addNewExercise(chatId));
-        } else if (callBackQueryData.matches("DELETE_EXERCISE")) {
-            executeMsg(deleteExercise(chatId));
-        } else if (callBackQueryData.matches("CANCEL")) {
+        }  else if (callBackQueryData.matches("CANCEL")) {
             executeMsg(acceptResultIndicators(update));
         } else if (callBackQueryData.equals("DELETE_RESULTS")) {
             exerciseService.deleteAllUserTrainingsResults(chatId);
@@ -229,38 +226,6 @@ public class MegamazzBot extends TelegramLongPollingBot {
         }
     }
 
-    //    public InlineKeyboardMarkup selectExerciseKeyBoard(long chatId) {
-//
-//        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-//        List<String> exerciseNames = userService.getExerciseList(chatId);
-//        List<InlineKeyboardButton> row = new ArrayList<>();
-//        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
-//        for (int i = 0; i < exerciseNames.size(); i++) {
-//            InlineKeyboardButton button = new InlineKeyboardButton();
-//            button.setText(exerciseNames.get(i));
-//            button.setCallbackData(exerciseNames.get(i));
-//            row.add(button);
-//            if ((i + 1) % 2 == 0) {
-//                rowList.add(row);
-//                row = new ArrayList<>();
-//            }
-//            if (i + 1 == exerciseNames.size()) {
-//                rowList.add(row);
-//            }
-//        }
-//        InlineKeyboardButton buttonForAddNewExrcs = new InlineKeyboardButton();
-//        InlineKeyboardButton buttonToDeleteExrcs = new InlineKeyboardButton();
-//        buttonForAddNewExrcs.setText("Добавить упражнение");
-//        buttonForAddNewExrcs.setCallbackData("NEW_EXERCISE");
-//        buttonToDeleteExrcs.setText("Удалить упражнение");
-//        buttonToDeleteExrcs.setCallbackData("DELETE_EXERCISE");
-//        List<InlineKeyboardButton> rowForDeletingAndAdding = new ArrayList<>();
-//        rowForDeletingAndAdding.add(buttonForAddNewExrcs);
-//        rowForDeletingAndAdding.add(buttonToDeleteExrcs);
-//        rowList.add(rowForDeletingAndAdding);
-//        inlineKeyboardMarkup.setKeyboard(rowList);
-//        return inlineKeyboardMarkup;
-//    }
     public ReplyKeyboardMarkup selectExerciseKeyBoard(long chatId) {
 
         ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
@@ -333,7 +298,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
     }
 
     private SendMessage createResultRecordAndPrepareForGettingValues(Update update, String message) {
-       // Long chatId = update.getCallbackQuery().getMessage().getChatId();
+        // Long chatId = update.getCallbackQuery().getMessage().getChatId();
         long chatId = update.getMessage().getChatId();
         SendMessage messageText = new SendMessage();
         currentExerciseRecord.setName(message); //
@@ -347,7 +312,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
         checkingText = "Введи максимальный весовой результат с клавиатуры";
         messageText.setReplyMarkup(cancelAction());
         messageText.setText(checkingText);
-       // messageText.setMessageId(update.getMessage().getMessageId());
+        // messageText.setMessageId(update.getMessage().getMessageId());
         messageText.setChatId(chatId);
         return messageText;
     }
@@ -389,7 +354,6 @@ public class MegamazzBot extends TelegramLongPollingBot {
         exerciseRepo.save(currentExerciseRecord);
         Exercise retrievedResult = (Exercise) exerciseService.findExerciseByRecordDate(currentExerciseRecord.getRecordDate());
         resultId = retrievedResult.getId();
-        currentExerciseRecord = new Exercise();
     }
 
     public EditMessageText showExerciseResultAfterInputingDates(Update update) {
@@ -437,16 +401,6 @@ public class MegamazzBot extends TelegramLongPollingBot {
         rowList.add(row);
         inlineKeyboardMarkup.setKeyboard(rowList);
         return inlineKeyboardMarkup;
-    }
-
-    boolean isCallBackQueryDataExerciseName(String callBackData, long chatId) {
-        for (String exerciseList : userService.getExerciseList(chatId)) {
-
-            if (callBackData.equals(exerciseList)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     boolean isPassedMessageTextExerciseName(String message, long chatId) {
