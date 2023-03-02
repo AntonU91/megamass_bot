@@ -33,13 +33,13 @@ import java.util.*;
 
 @Component
 @Slf4j
-
 // TODO Find out aproach how to delete file with training results from project directory
 /*
 cancel - cancel current action
 getresult - show trainings result records
 getresultsfile- create txt file with trainings results records
 deleteresults - delete all trainings results
+addresult - add new training result
 */
 
 public class MegamazzBot extends TelegramLongPollingBot {
@@ -47,6 +47,9 @@ public class MegamazzBot extends TelegramLongPollingBot {
     private String botUserName;
     @Value("${bot.token}")
     private String botToken;
+
+    @Autowired
+    Exercise currentExerciseRecord;
 
     @Autowired
     private UserRepo userRepo;
@@ -60,15 +63,9 @@ public class MegamazzBot extends TelegramLongPollingBot {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private User user;
     private Long resultId = 0L;
-    private String chekingText;
-    private String exerciseToDelete;
+    private String checkingText = "NONE";
     private int fileCounter = 1;
-    @Autowired
-    Exercise currentExerciseRecord;
-
 
     @Override
     public void onRegister() {
@@ -123,7 +120,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
 
     public SendMessage greetingToExistUser(Long chatId, String userLogin) {
         SendMessage sendMessage = new SendMessage();
-        sendMessage.setText(String.format("Привет, %s!", userLogin));
+        sendMessage.setText(String.format("Привет, %s&#128075;", userLogin));
         sendMessage.setChatId(chatId);
         sendMessage.setReplyMarkup(selector());
         return sendMessage;
@@ -167,22 +164,27 @@ public class MegamazzBot extends TelegramLongPollingBot {
             executeMsg(acceptResultIndicators(update));
         } else if (msg.equals("/deleteresults")) {
             executeMsg(deleteAllTrainingResult(chatId));
+        } else if (msg.equals("/addresult")){
+            if (hasUserCreatedLogin(chatId)) {
+            executeMsg(prepareForExerciseSelection(update));}
+            else executeMsg(askToCreateLogin(update));
+        }
+        else if (msg.matches("^\\s*\\D+.*")
+                & checkingText.equals("Введите название нового упражнения. Название должно начинаться с буквы")) {
+            if (hasUserCreatedLogin(chatId)) {
+                executeMsg(saveNewExercise(update));
+            }
+            checkingText = "NONE";
+        } else if (msg.matches("^\\s*\\D+.*")) {
+            registration(chatId, update);
+        } else if (msg.matches("\\s*\\d{1,3}") &
+                checkingText.equals("Введи максимальный весовой результат с клавиатуры")) {
+            saveWeightValue(msg);
+            executeMsg(selectCountExerciseRepeating(chatId));
+            checkingText = "NONE";
         } else if (isPassedMessageTextExerciseName(msg, chatId)) {
             executeMsg(notifyThatExerciseWasDeleted(msg, chatId));
             userService.deleteSpecifiedExerciseByUserID(msg, chatId);
-        } else if (msg.matches("^\\s*\\D+.*")
-                & chekingText.equals("Введите название нового упражнения. Название должно начинаться с буквы")) {
-            if (hasUserCreatedLogin(chatId)) {
-                executeMsg(saveNewExercise(update));
-            } else {
-                registration(chatId, update);
-            }
-            chekingText = null;
-        } else if (msg.matches("\\s*\\d{1,3}") &
-                chekingText.equals("Введи максимальный весовой результат с клавиатуры")) {
-            saveWeightValue(msg);
-            executeMsg(selectCountExerciseRepeating(chatId));
-            chekingText = null;
         }
     }
 
@@ -280,7 +282,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
 
 
     private SendMessage prepareForExerciseSelection(Update update) {
-        long chatId = update.getCallbackQuery().getMessage().getChatId();
+        long chatId = getChatId(update);
         SendMessage messageText = new SendMessage();
         messageText.setText("Выбери категорию");
         messageText.setChatId(chatId);
@@ -299,9 +301,9 @@ public class MegamazzBot extends TelegramLongPollingBot {
         } else {
             currentExerciseRecord.setWeekNumber(defineTheWeeksOfTraining(currentExerciseRecord.getRecordDate(), chatId));
         }
-        chekingText = "Введи максимальный весовой результат с клавиатуры";
+        checkingText = "Введи максимальный весовой результат с клавиатуры";
         messageText.setReplyMarkup(cancelAction());
-        messageText.setText(chekingText);
+        messageText.setText(checkingText);
         messageText.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
         messageText.setChatId(chatId);
         return messageText;
@@ -310,7 +312,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
     SendMessage editResultValue(Update update) {
         SendMessage messageText = new SendMessage();
         Exercise exercise = exerciseRepo.findById(resultId).get();
-        chekingText = "Введи максимальный весовой результат с клавиатуры";
+        checkingText = "Введи максимальный весовой результат с клавиатуры";
         messageText.setText(
                 String.format("Для редактирования упражнения \"%s\" введи максимальный весовой результат с клавиатуры",
                         exercise.getName()));
@@ -416,9 +418,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
 
     private SendMessage getListOfTrainingWeeks(Update update) {
         long chatId;
-        if (update.hasMessage() && update.getMessage().hasText()) {
-            chatId = update.getMessage().getChatId();
-        } else chatId = update.getCallbackQuery().getMessage().getChatId();
+        chatId = getChatId(update);
 
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
@@ -429,6 +429,14 @@ public class MegamazzBot extends TelegramLongPollingBot {
             message.setReplyMarkup(createListOfTrainingWeek(chatId));
         }
         return message;
+    }
+
+    private long getChatId(Update update) {
+        long chatId;
+        if (update.hasMessage() && update.getMessage().hasText()) {
+            chatId = update.getMessage().getChatId();
+        } else chatId = update.getCallbackQuery().getMessage().getChatId();
+        return chatId;
     }
 
     private int defineTheWeeksOfTraining(Date date, long chatId) {
@@ -482,7 +490,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
     private InlineKeyboardMarkup acceptInfo() {
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         InlineKeyboardButton OK_Button = new InlineKeyboardButton();
-        OK_Button.setText("Ok");
+        OK_Button.setText("✅Ok");
         OK_Button.setCallbackData("OK");
         List<InlineKeyboardButton> row1 = new ArrayList<>();
         row1.add(OK_Button);
@@ -495,8 +503,8 @@ public class MegamazzBot extends TelegramLongPollingBot {
     private SendMessage addNewExercise(long chatId) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
-        chekingText = "Введите название нового упражнения. Название должно начинаться с буквы";
-        message.setText(chekingText);
+        checkingText = "Введите название нового упражнения. Название должно начинаться с буквы";
+        message.setText(checkingText);
         message.setReplyMarkup(cancelAction());
         return message;
     }
@@ -631,6 +639,14 @@ public class MegamazzBot extends TelegramLongPollingBot {
         rowList.add(row);
         inlineKeyboardMarkup.setKeyboard(rowList);
         return inlineKeyboardMarkup;
+    }
+    public SendMessage askToCreateLogin (Update update) {
+        long chatId =  update.getMessage().getChatId();
+        String userName =  update.getMessage().getFrom().getFirstName();
+        SendMessage message = new SendMessage();
+        message.setChatId(chatId);
+        message.setText(EmojiParser.parseToUnicode(String.format("%s, для початку введи свій майбутній логін&#128521;", userName)));
+        return message;
     }
 
 }
