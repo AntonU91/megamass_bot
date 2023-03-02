@@ -206,13 +206,14 @@ public class MegamazzBot extends TelegramLongPollingBot {
         }
         InlineKeyboardButton buttonForAddNewExrcs = new InlineKeyboardButton();
         InlineKeyboardButton buttonToDeleteExrcs = new InlineKeyboardButton();
-        buttonForAddNewExrcs.setText("Добавить новое упражнение");
+        buttonForAddNewExrcs.setText("Добавить упражнение");
         buttonForAddNewExrcs.setCallbackData("NEW_EXERCISE");
         buttonToDeleteExrcs.setText("Удалить упражнение");
         buttonToDeleteExrcs.setCallbackData("DELETE_EXERCISE");
-
-        row.add(buttonForAddNewExrcs);
-        row.add(buttonToDeleteExrcs);
+        List<InlineKeyboardButton> rowForDeletingAndAdding = new ArrayList<>();
+        rowForDeletingAndAdding.add(buttonForAddNewExrcs);
+        rowForDeletingAndAdding.add(buttonToDeleteExrcs);
+        rowList.add(rowForDeletingAndAdding);
         inlineKeyboardMarkup.setKeyboard(rowList);
         return inlineKeyboardMarkup;
     }
@@ -579,8 +580,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
         java.io.File file = new File("results" + fileCounter + ".txt");
         FileWriter writer = new FileWriter(file);
         StringBuilder stringBuilder = new StringBuilder();
-        int counter = 1;
-        stringBuilder.append("1 тренировочная неделя").append("\n");
+        int counter = 0;
         for (Exercise exercise : exerciseList) {
             if (exercise.getWeekNumber() > counter) {
                 counter = exercise.getWeekNumber();
