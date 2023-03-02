@@ -61,4 +61,11 @@ public class ExerciseSevice {
     return eManager.createQuery("FROM exercise e WHERE  e.user.chatId=:id ORDER BY e.weekNumber, e.name, e.weight")
             .setParameter("id", chatId).getResultList();
   }
+
+  @Transactional
+  public void deleteAllUserTrainingsResults(long chatId) {
+    eManager.createQuery("DELETE FROM exercise e WHERE e.user.chaId=:chatId")
+            .setParameter("chatId", chatId);
+  }
+
 }
