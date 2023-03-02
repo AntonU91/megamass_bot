@@ -107,6 +107,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
             execute(sendMessage);
         } catch (TelegramApiException e) {
             log.error("Error of processing message " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -115,6 +116,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
         sendMessage.setText(EmojiParser.parseToUnicode(String.format("Привет, %s. Придумай свой логин:muscle:" +
                 "\nЛогин должен начинаться с буквы", update.getMessage().getFrom().getFirstName())));
         sendMessage.setChatId(chatId);
+        checkingText = "REGISTRATION";
         return sendMessage;
     }
 
@@ -144,6 +146,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
 
     public void divider(String msg, Update update) {
         long chatId = update.getMessage().getChatId();
+
         if (msg.matches("/start")) {
             Optional<User> user = userRepo.findById(update.getMessage().getChatId());
             if (user.isPresent()) {
@@ -164,27 +167,31 @@ public class MegamazzBot extends TelegramLongPollingBot {
             executeMsg(acceptResultIndicators(update));
         } else if (msg.equals("/deleteresults")) {
             executeMsg(deleteAllTrainingResult(chatId));
-        } else if (msg.equals("/addresult")){
+        } else if (msg.equals("/addresult")) {
             if (hasUserCreatedLogin(chatId)) {
-            executeMsg(prepareForExerciseSelection(update));}
-            else executeMsg(askToCreateLogin(update));
-        }
-        else if (msg.matches("^\\s*\\D+.*")
+                executeMsg(prepareForExerciseSelection(update));
+            } else executeMsg(askToCreateLogin(update));
+        } else if (msg.matches("^\\s*\\D+.*")
                 & checkingText.equals("Введите название нового упражнения. Название должно начинаться с буквы")) {
             if (hasUserCreatedLogin(chatId)) {
                 executeMsg(saveNewExercise(update));
             }
             checkingText = "NONE";
-        } else if (msg.matches("^\\s*\\D+.*")) {
+        } else if (msg.matches("^\\s*\\D+.*") & checkingText.equals("REGISTRATION")) {
             registration(chatId, update);
+            checkingText= "NONE";
         } else if (msg.matches("\\s*\\d{1,3}") &
                 checkingText.equals("Введи максимальный весовой результат с клавиатуры")) {
             saveWeightValue(msg);
             executeMsg(selectCountExerciseRepeating(chatId));
             checkingText = "NONE";
         } else if (isPassedMessageTextExerciseName(msg, chatId)) {
-            executeMsg(notifyThatExerciseWasDeleted(msg, chatId));
-            userService.deleteSpecifiedExerciseByUserID(msg, chatId);
+            if (checkingText.equals("ADD RESULT")) {
+                executeMsg(createResultRecordAndPrepareForGettingValues(update, msg));
+            } else {
+                executeMsg(notifyThatExerciseWasDeleted(msg, chatId));
+                userService.deleteSpecifiedExerciseByUserID(msg, chatId);
+            }
         }
     }
 
@@ -196,9 +203,11 @@ public class MegamazzBot extends TelegramLongPollingBot {
         } else if (callBackQueryData.equals("GET_RESULT")) {
             executeMsg(getListOfTrainingWeeks(update));
 
-        } else if (isCallBackQueryDataExerciseName(callBackQueryData, chatId)) {
-            executeEditMsgText(createResultRecordAndPrepareForGettingValues(update, callBackQueryData));
-        } else if (callBackQueryData.matches("\\d{1,3}")) {
+        }
+//        else if (isCallBackQueryDataExerciseName(callBackQueryData, chatId)) {
+//            executeEditMsgText(createResultRecordAndPrepareForGettingValues(update, callBackQueryData));
+//        }
+        else if (callBackQueryData.matches("\\d{1,3}")) {
             saveCountValue(update);
             saveExcerciseResult(update);
             executeEditMsgText(showExerciseResultAfterInputingDates(update));
@@ -220,38 +229,71 @@ public class MegamazzBot extends TelegramLongPollingBot {
         }
     }
 
-    public InlineKeyboardMarkup selectExerciseKeyBoard(long chatId) {
+    //    public InlineKeyboardMarkup selectExerciseKeyBoard(long chatId) {
+//
+//        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+//        List<String> exerciseNames = userService.getExerciseList(chatId);
+//        List<InlineKeyboardButton> row = new ArrayList<>();
+//        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+//        for (int i = 0; i < exerciseNames.size(); i++) {
+//            InlineKeyboardButton button = new InlineKeyboardButton();
+//            button.setText(exerciseNames.get(i));
+//            button.setCallbackData(exerciseNames.get(i));
+//            row.add(button);
+//            if ((i + 1) % 2 == 0) {
+//                rowList.add(row);
+//                row = new ArrayList<>();
+//            }
+//            if (i + 1 == exerciseNames.size()) {
+//                rowList.add(row);
+//            }
+//        }
+//        InlineKeyboardButton buttonForAddNewExrcs = new InlineKeyboardButton();
+//        InlineKeyboardButton buttonToDeleteExrcs = new InlineKeyboardButton();
+//        buttonForAddNewExrcs.setText("Добавить упражнение");
+//        buttonForAddNewExrcs.setCallbackData("NEW_EXERCISE");
+//        buttonToDeleteExrcs.setText("Удалить упражнение");
+//        buttonToDeleteExrcs.setCallbackData("DELETE_EXERCISE");
+//        List<InlineKeyboardButton> rowForDeletingAndAdding = new ArrayList<>();
+//        rowForDeletingAndAdding.add(buttonForAddNewExrcs);
+//        rowForDeletingAndAdding.add(buttonToDeleteExrcs);
+//        rowList.add(rowForDeletingAndAdding);
+//        inlineKeyboardMarkup.setKeyboard(rowList);
+//        return inlineKeyboardMarkup;
+//    }
+    public ReplyKeyboardMarkup selectExerciseKeyBoard(long chatId) {
 
-        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
         List<String> exerciseNames = userService.getExerciseList(chatId);
-        List<InlineKeyboardButton> row = new ArrayList<>();
-        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+        KeyboardRow row = new KeyboardRow();
+        List<KeyboardRow> rowList = new ArrayList<>();
         for (int i = 0; i < exerciseNames.size(); i++) {
-            InlineKeyboardButton button = new InlineKeyboardButton();
+            KeyboardButton button = new KeyboardButton();
             button.setText(exerciseNames.get(i));
-            button.setCallbackData(exerciseNames.get(i));
             row.add(button);
             if ((i + 1) % 2 == 0) {
                 rowList.add(row);
-                row = new ArrayList<>();
+                row = new KeyboardRow();
             }
             if (i + 1 == exerciseNames.size()) {
                 rowList.add(row);
             }
         }
-        InlineKeyboardButton buttonForAddNewExrcs = new InlineKeyboardButton();
-        InlineKeyboardButton buttonToDeleteExrcs = new InlineKeyboardButton();
+        KeyboardButton buttonForAddNewExrcs = new KeyboardButton();
+        KeyboardButton buttonToDeleteExrcs = new KeyboardButton();
         buttonForAddNewExrcs.setText("Добавить упражнение");
-        buttonForAddNewExrcs.setCallbackData("NEW_EXERCISE");
         buttonToDeleteExrcs.setText("Удалить упражнение");
-        buttonToDeleteExrcs.setCallbackData("DELETE_EXERCISE");
-        List<InlineKeyboardButton> rowForDeletingAndAdding = new ArrayList<>();
+        KeyboardRow rowForDeletingAndAdding = new KeyboardRow();
         rowForDeletingAndAdding.add(buttonForAddNewExrcs);
         rowForDeletingAndAdding.add(buttonToDeleteExrcs);
         rowList.add(rowForDeletingAndAdding);
-        inlineKeyboardMarkup.setKeyboard(rowList);
-        return inlineKeyboardMarkup;
+        replyKeyboardMarkup.setKeyboard(rowList);
+        replyKeyboardMarkup.setOneTimeKeyboard(true);
+        replyKeyboardMarkup.setResizeKeyboard(true);
+        checkingText = "ADD RESULT";
+        return replyKeyboardMarkup;
     }
+
 
     public SendMessage selectCountExerciseRepeating(Long chatId) {
         SendMessage sendMessage = new SendMessage();
@@ -290,10 +332,11 @@ public class MegamazzBot extends TelegramLongPollingBot {
         return messageText;
     }
 
-    private EditMessageText createResultRecordAndPrepareForGettingValues(Update update, String callBackQueryData) {
-        Long chatId = update.getCallbackQuery().getMessage().getChatId();
-        EditMessageText messageText = new EditMessageText();
-        currentExerciseRecord.setName(callBackQueryData); //
+    private SendMessage createResultRecordAndPrepareForGettingValues(Update update, String message) {
+       // Long chatId = update.getCallbackQuery().getMessage().getChatId();
+        long chatId = update.getMessage().getChatId();
+        SendMessage messageText = new SendMessage();
+        currentExerciseRecord.setName(message); //
         Date recordingDate = new Date();
         currentExerciseRecord.setRecordDate(recordingDate);
         if (exerciseService.findAtLeastOneExerciceRecordByUserId(chatId).isEmpty()) {
@@ -304,7 +347,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
         checkingText = "Введи максимальный весовой результат с клавиатуры";
         messageText.setReplyMarkup(cancelAction());
         messageText.setText(checkingText);
-        messageText.setMessageId(update.getCallbackQuery().getMessage().getMessageId());
+       // messageText.setMessageId(update.getMessage().getMessageId());
         messageText.setChatId(chatId);
         return messageText;
     }
@@ -640,9 +683,10 @@ public class MegamazzBot extends TelegramLongPollingBot {
         inlineKeyboardMarkup.setKeyboard(rowList);
         return inlineKeyboardMarkup;
     }
-    public SendMessage askToCreateLogin (Update update) {
-        long chatId =  update.getMessage().getChatId();
-        String userName =  update.getMessage().getFrom().getFirstName();
+
+    public SendMessage askToCreateLogin(Update update) {
+        long chatId = update.getMessage().getChatId();
+        String userName = update.getMessage().getFrom().getFirstName();
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
         message.setText(EmojiParser.parseToUnicode(String.format("%s, для початку введи свій майбутній логін&#128521;", userName)));
