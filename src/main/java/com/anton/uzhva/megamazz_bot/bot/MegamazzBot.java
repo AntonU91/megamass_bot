@@ -8,11 +8,8 @@ import com.anton.uzhva.megamazz_bot.model.UserRepo;
 import com.anton.uzhva.megamazz_bot.service.ExerciseSevice;
 import com.anton.uzhva.megamazz_bot.service.UserService;
 import com.vdurmont.emoji.EmojiParser;
-import lombok.AccessLevel;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
@@ -49,14 +46,9 @@ addresult - add new training result
 public class MegamazzBot extends TelegramLongPollingBot {
 
     BotConfig botConfig;
+
     @Autowired
     Exercise currentExerciseRecord;
-
-    @Autowired
-    private UserRepo userRepo;
-
-    @Autowired
-    private ExerciseRepo exerciseRepo;
 
     @Autowired
     private ExerciseSevice exerciseService;
@@ -137,7 +129,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
 
     public void registration(Long chatId, Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
-            if (userRepo.findById(update.getMessage().getChatId()).isPresent()) {
+            if (userService.findUserById(update.getMessage().getChatId()).isPresent()) {
                 return;
             }
             User user = new User();
@@ -145,7 +137,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
             user.setId(chatId);
             user.setUserLogin(userLogin);
             user.setDefaultExercises();
-            userRepo.save(user);
+            userService.saveUser(user);
             executeMsg(greetingToExistUser(chatId, userLogin));
         }
     }
@@ -154,7 +146,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
         long chatId = update.getMessage().getChatId();
 
         if (msg.matches("/start")) {
-            Optional<User> user = userRepo.findById(update.getMessage().getChatId());
+            Optional<User> user = userService.findUserById(update.getMessage().getChatId());
             if (user.isPresent()) {
                 String userLogin = user.get().getUserLogin();
                 executeMsg(greetingToExistUser(chatId, userLogin));
@@ -324,7 +316,8 @@ public class MegamazzBot extends TelegramLongPollingBot {
 
     SendMessage editResultValue(Update update) {
         SendMessage messageText = new SendMessage();
-        Exercise exercise = exerciseRepo.findById(resultId).get();
+
+        Exercise exercise = exerciseService.findExcerciseById(resultId).get();
         checkingText = "Введи максимальный весовой результат с клавиатуры";
         messageText.setText(
                 String.format("Для редактирования упражнения \"%s\" введи максимальный весовой результат с клавиатуры",
@@ -354,16 +347,16 @@ public class MegamazzBot extends TelegramLongPollingBot {
     }
 
     private void saveExcerciseResult(Update update) {
-        User user = userRepo.findById(update.getCallbackQuery().getMessage().getChatId()).get();
+        User user = userService.findUserById(update.getCallbackQuery().getMessage().getChatId()).get();
         currentExerciseRecord.setUser(user);
-        exerciseRepo.save(currentExerciseRecord);
+        exerciseService.saveExercise(currentExerciseRecord);
         Exercise retrievedResult = (Exercise) exerciseService.findExerciseByRecordDate(currentExerciseRecord.getRecordDate());
         resultId = retrievedResult.getId();
     }
 
     public EditMessageText showExerciseResultAfterInputingDates(Update update) {
         EditMessageText editMessageText = new EditMessageText();
-        Exercise exercise = exerciseRepo.findById(resultId).get();
+        Exercise exercise = exerciseService.findExcerciseById(resultId).get();
         editMessageText.setText(String.format("Отлично! Твой результат в упражнение %s - %.1f кг на %d раз",
                 exercise.getName(), exercise.getWeight(), exercise.getCount()));
         editMessageText.setMessageId(update.getCallbackQuery().getMessage().getMessageId());

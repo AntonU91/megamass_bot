@@ -2,25 +2,41 @@ package com.anton.uzhva.megamazz_bot.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import javax.persistence.EntityManager;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.anton.uzhva.megamazz_bot.model.Exercise;
 import com.anton.uzhva.megamazz_bot.model.ExerciseRepo;
 
+@FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
 @org.springframework.stereotype.Service
 @Transactional(readOnly = true)
 public class ExerciseSevice {
 
-  private final EntityManager eManager;
+   ExerciseRepo exerciseRepo;
+   EntityManager eManager;
+
 
   @Autowired
   public ExerciseSevice(ExerciseRepo exerciseRepo, EntityManager eManager) {
     this.eManager = eManager;
+    this.exerciseRepo = exerciseRepo;
   }
+
+  public Optional<Exercise> findExcerciseById (long chatId) {
+     return exerciseRepo.findById(chatId);
+  }
+
+  public void saveExercise(Exercise exercise) {
+    exerciseRepo.save(exercise);
+  }
+
 
   public List<Exercise> findAllExerciseRecordByUserId(long chatId) {
     return eManager.createQuery("FROM exercise e where e.user.chatId=:id")

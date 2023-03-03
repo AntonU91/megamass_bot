@@ -6,18 +6,21 @@ import java.util.Optional;
 
 import javax.persistence.EntityManager;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.anton.uzhva.megamazz_bot.model.User;
 import com.anton.uzhva.megamazz_bot.model.UserRepo;
 
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @org.springframework.stereotype.Service
 @Transactional(readOnly = true)
 public class UserService {
 
-    private final UserRepo userRepo;
-    private final EntityManager eManager;
+    UserRepo userRepo;
+    EntityManager eManager;
 
     @Autowired
     public UserService(UserRepo userRepo, EntityManager eManager) {
@@ -25,6 +28,12 @@ public class UserService {
         this.userRepo = userRepo;
     }
 
+    public  void saveUser(User user) {
+        userRepo.save(user);
+    }
+    public Optional<User> findUserById(long chatId) {
+       return userRepo.findById(chatId);
+    }
 
     public String getUserLogin(long chatId) {
         return (String) eManager.createQuery("SELECT u.userLogin FROM user u WHERE u.chatId=:chatId")
@@ -61,7 +70,7 @@ public class UserService {
     public void deleteSpecifiedExerciseByUserID(String exerciseToDelete, long chatId) {
         User user = userRepo.findById(chatId).get();
         String exrcises = user.getExercises()
-                .replaceAll("\\s*"+exerciseToDelete + ",?", "");
+                .replaceAll("\\s*" + exerciseToDelete + ",?", "");
         user.setExercises(exrcises);
         userRepo.save(user);
     }
