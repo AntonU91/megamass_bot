@@ -1,5 +1,6 @@
 package com.anton.uzhva.megamazz_bot.bot;
 
+import com.anton.uzhva.megamazz_bot.config.BotConfig;
 import com.anton.uzhva.megamazz_bot.model.Exercise;
 import com.anton.uzhva.megamazz_bot.model.ExerciseRepo;
 import com.anton.uzhva.megamazz_bot.model.User;
@@ -7,6 +8,8 @@ import com.anton.uzhva.megamazz_bot.model.UserRepo;
 import com.anton.uzhva.megamazz_bot.service.ExerciseSevice;
 import com.anton.uzhva.megamazz_bot.service.UserService;
 import com.vdurmont.emoji.EmojiParser;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,8 +34,7 @@ import java.io.IOException;
 import java.util.*;
 
 
-@Component
-@Slf4j
+// TODO Organise your project due to appropriate architect principles
 // TODO Find out aproach how to delete file with training results from project directory
 /*
 cancel - cancel current action
@@ -42,12 +44,11 @@ deleteresults - delete all trainings results
 addresult - add new training result
 */
 
+@Component
+@Slf4j
 public class MegamazzBot extends TelegramLongPollingBot {
-    @Value("${bot.name}")
-    private String botUserName;
-    @Value("${bot.token}")
-    private String botToken;
 
+    BotConfig botConfig;
     @Autowired
     Exercise currentExerciseRecord;
 
@@ -64,8 +65,13 @@ public class MegamazzBot extends TelegramLongPollingBot {
     private UserService userService;
 
     private Long resultId = 0L;
-    private String checkingText = "NONE";
+    private String checkingText = "NONE"; // TODO Replace this one with State ENUMS values
     private int fileCounter = 1;
+
+    @Autowired
+    public MegamazzBot(BotConfig botConfig) {
+        this.botConfig = botConfig;
+    }
 
     @Override
     public void onRegister() {
@@ -74,12 +80,12 @@ public class MegamazzBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return botUserName;
+        return botConfig.getBotUserName();
     }
 
     @Override
     public String getBotToken() {
-        return botToken;
+        return botConfig.getBotToken();
     }
 
     @Override
@@ -207,8 +213,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
         } else if (callBackQueryData.equals("GET_RESULT")) {
             executeMsg(getListOfTrainingWeeks(update));
 
-        }
-        else if (callBackQueryData.matches("\\d{1,3}")) {
+        } else if (callBackQueryData.matches("\\d{1,3}")) {
             saveCountValue(update);
             saveExcerciseResult(update);
             executeEditMsgText(showExerciseResultAfterInputingDates(update));
@@ -218,7 +223,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
             executeMsg(editResultValue(update));
         } else if (callBackQueryData.matches("WEEK-\\d{1,3}")) {
             executeMsg(getTrainingResult(update));
-        }  else if (callBackQueryData.matches("CANCEL")) {
+        } else if (callBackQueryData.matches("CANCEL")) {
             executeMsg(acceptResultIndicators(update));
         } else if (callBackQueryData.equals("DELETE_RESULTS")) {
             exerciseService.deleteAllUserTrainingsResults(chatId);
@@ -254,7 +259,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
         rowList.add(rowForDeletingAndAdding);
         replyKeyboardMarkup.setKeyboard(rowList);
         replyKeyboardMarkup.setOneTimeKeyboard(true);
-        replyKeyboardMarkup.setResizeKeyboard(true);
+        //replyKeyboardMarkup.setResizeKeyboard(true);
         checkingText = "ADD RESULT";
         return replyKeyboardMarkup;
     }
@@ -411,7 +416,6 @@ public class MegamazzBot extends TelegramLongPollingBot {
         }
         return false;
     }
-
 
     private SendMessage getListOfTrainingWeeks(Update update) {
         long chatId;
