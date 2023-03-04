@@ -8,10 +8,13 @@ import com.anton.uzhva.megamazz_bot.model.UserRepo;
 import com.anton.uzhva.megamazz_bot.service.ExerciseSevice;
 import com.anton.uzhva.megamazz_bot.service.UserService;
 import com.vdurmont.emoji.EmojiParser;
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -41,24 +44,25 @@ deleteresults - delete all trainings results
 addresult - add new training result
 */
 
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Component
 @Slf4j
 public class MegamazzBot extends TelegramLongPollingBot {
 
-    BotConfig botConfig;
+    final BotConfig botConfig;
 
     @Autowired
     Exercise currentExerciseRecord;
 
     @Autowired
-    private ExerciseSevice exerciseService;
+    ExerciseSevice exerciseService;
 
     @Autowired
-    private UserService userService;
+    UserService userService;
 
-    private Long resultId = 0L;
-    private String checkingText = "NONE"; // TODO Replace this one with State ENUMS values
-    private int fileCounter = 1;
+    Long resultId = 0L;
+    String checkingText = "NONE"; // TODO Replace this one with State ENUMS values
+    int fileCounter = 1;
 
     @Autowired
     public MegamazzBot(BotConfig botConfig) {
@@ -84,7 +88,6 @@ public class MegamazzBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
 
         if (update.hasMessage() && update.getMessage().hasText()) {
-            Long chatId = update.getMessage().getChatId();
             String userMsg = update.getMessage().getText();
             divider(userMsg, update);
         } else if (update.hasCallbackQuery()) {
@@ -640,7 +643,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
         String userName = update.getMessage().getFrom().getFirstName();
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
-        message.setText(EmojiParser.parseToUnicode(String.format("%s, для початку введи свій майбутній логін&#128521;", userName)));
+        message.setText(EmojiParser.parseToUnicode(String.format("%s, для початку введи свій майбутній логін", userName)));
         return message;
     }
 

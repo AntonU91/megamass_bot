@@ -26,9 +26,8 @@ public class User {
 
     @Transient
     private static final ArrayList<String> DEFAULT_EXERCISES = new ArrayList<>(
-            Arrays.asList("ABC", "DEF", "GKL", "XYZ"));
-    // new ArrayList<>(
-    // Arrays.asList("Жим", "Присяд", "Становая тяга", "Жим под наклоном"));
+            Arrays.asList("Жим", "Присідання зі штангою", "Станова тяга", "Випад в осад"));
+
 
     @Column(name = "user_exercises", nullable = false)
     private String exercises;
