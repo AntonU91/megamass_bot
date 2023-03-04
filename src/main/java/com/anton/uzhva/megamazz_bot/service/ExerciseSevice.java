@@ -33,6 +33,7 @@ public class ExerciseSevice {
      return exerciseRepo.findById(chatId);
   }
 
+  @Transactional
   public void saveExercise(Exercise exercise) {
     exerciseRepo.save(exercise);
   }

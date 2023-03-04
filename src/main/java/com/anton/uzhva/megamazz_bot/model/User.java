@@ -26,6 +26,7 @@ public class User {
 
     @Transient
     private static final ArrayList<String> DEFAULT_EXERCISES = new ArrayList<>(
+         //   Arrays.asList("A", "B", "C", "D"));
             Arrays.asList("Жим", "Присідання зі штангою", "Станова тяга", "Випад в осад"));
 
 
@@ -77,7 +78,7 @@ public class User {
     }
 
     public void addExercise(String newExercise) {
-        exercises += newExercise + ", ";
+        exercises += ", "+ newExercise ;
     }
 
     @Override
