@@ -179,7 +179,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
         } else if (msg.equals("Удалить упражнение")) {
             executeMsg(deleteExercise(chatId));
         } else if (msg.matches("^\\s*\\D+.*")
-                & checkingText.equals("Введите название нового упражнения. Название должно начинаться с буквы")) {
+                & checkingText.equals("NEW EXERCISE")) {
             if (hasUserCreatedLogin(chatId)) {
                 executeMsg(saveNewExercise(update));
             }
@@ -421,6 +421,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
         message.setChatId(chatId);
         if (exerciseService.findAtLeastOneExerciceRecordByUserId(chatId).isEmpty()) {
             message.setText("У вас пока что нет записанных результатов");
+            message.setReplyMarkup(acceptInfo());
         } else {
             message.setText("Выбeрите тренировочную неделю");
             message.setReplyMarkup(createListOfTrainingWeek(chatId));
@@ -500,8 +501,8 @@ public class MegamazzBot extends TelegramLongPollingBot {
     private SendMessage addNewExercise(long chatId) {
         SendMessage message = new SendMessage();
         message.setChatId(chatId);
-        checkingText = "Введите название нового упражнения. Название должно начинаться с буквы";
-        message.setText(checkingText);
+        checkingText = "NEW EXERCISE";
+        message.setText("Введите название нового упражнения. Название должно начинаться с буквы");
         message.setReplyMarkup(cancelAction());
         return message;
     }
