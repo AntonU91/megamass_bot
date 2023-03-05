@@ -144,6 +144,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
             user.setDefaultExercises();
             userService.saveUser(user);
             executeMsg(greetingToExistUser(chatId, userLogin));
+
         }
     }
 
