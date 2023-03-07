@@ -27,8 +27,9 @@ public class ChoosingExerciseHelper extends UserRequestHandler {
     @Override
     public boolean isApplicable(UserRequest request) {
         String exerciseName = request.getUpdate().getMessage().getText();
-        return isValidTextMessage(request.getUpdate(), getSelectedExerciseName(exerciseName, request.getChatId()))
-        && request.getSession().getState().equals(ConversationState.CHOOSING_EXERCISE);
+        return request.getSession().getState().equals(ConversationState.CHOOSING_EXERCISE)
+                && isValidTextMessage(request.getUpdate(), getSelectedExerciseName(exerciseName, request.getChatId()));
+
     }
 
     @Override

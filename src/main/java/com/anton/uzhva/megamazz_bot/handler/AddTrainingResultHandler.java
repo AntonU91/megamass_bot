@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AddTrainingResultHandler  implements UserCallBackRequestHandler{
+public class AddTrainingResultHandler implements UserCallBackRequestHandler {
     UserSessionService userSessionService;
     TelegramService telegramService;
     KeyboardHelper keyboardHelper;
@@ -33,9 +33,8 @@ public class AddTrainingResultHandler  implements UserCallBackRequestHandler{
     }
 
 
-
     @Override
     public boolean isCallbackApplicable(UserRequest userRequest) {
-     return  isValidCallBack(userRequest.getUpdate(), Constants.ADD_NEW_RESULT);
+        return isValidCallBack(userRequest.getUpdate(), Constants.ADD_NEW_RESULT);
     }
 }

@@ -70,5 +70,24 @@ public class KeyboardHelper {
                 .build();
     }
 
+    public InlineKeyboardMarkup countKeyBoard() {
+        List<List<InlineKeyboardButton>> rowlist = new ArrayList<>();
+        int count = 1;
+        for (int i = 0; i < 10; i++) {
+            List<InlineKeyboardButton> row = new ArrayList<>();
+            for (int j = 0; j < 5; j++) {
+                InlineKeyboardButton countButton = new InlineKeyboardButton();
+                countButton.setText(String.valueOf(count));
+                countButton.setCallbackData(String.valueOf(count));
+                row.add(countButton);
+                count++;
+            }
+            rowlist.add(row);
+        }
+        return InlineKeyboardMarkup.builder()
+                .keyboard(rowlist)
+                .build();
+    }
+
 
 }

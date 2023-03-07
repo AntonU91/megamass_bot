@@ -20,7 +20,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 @Slf4j
 @Service
 public class TelegramService {
-    MegamassBotSender botSender;
+    final MegamassBotSender botSender;
 
 
     @Autowired
@@ -52,7 +52,6 @@ public class TelegramService {
                 .replyMarkup(inlineKeyboardMarkup)
                 .build();
         execute(sendMsg);
-
     }
 
     private void execute (BotApiMethod<?> botApiMethod) {

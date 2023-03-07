@@ -38,7 +38,6 @@ public class NewMegamassBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-
         if (update.hasMessage() && update.getMessage().hasText()) {
             long chatId = update.getMessage().getChatId();
             UserSession userSession = userSessionService.getSession(chatId);
@@ -55,7 +54,8 @@ public class NewMegamassBot extends TelegramLongPollingBot {
     private UserRequest getUserRequest(Update update, long chatId, UserSession userSession) {
         return UserRequest.builder()
                 .chatId(chatId)
-                .session(userSession)
+                .session(userSession) // in this place reference UserSession userSession from UserRequest
+                // and reference UserSession from HashMap of UserSessionService begin to point on one object
                 .update(update)
                 .build();
     }
