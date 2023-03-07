@@ -41,8 +41,6 @@ public class SaveWeightHandler extends UserRequestHandler{
         userSessionService.saveUserSession(userSession.getChatId(), userSession);
         telegramService.sendMessage(userRequest.getChatId(), "Select the number of exercise repetitions",
                 keyboardHelper.countKeyBoard());
-
-
     }
     @Override
     public boolean isGlobal() {
