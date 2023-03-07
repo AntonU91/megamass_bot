@@ -7,5 +7,5 @@ import lombok.experimental.FieldDefaults;
 public class Constants {
   public static String REGEX_USER_LOGIN = "^\\s*\\D+.*";
   public  static  String START_COMMAND = "/start";
-
+  public  static  String ADD_NEW_RESULT = "ADD_RESULT";
 }

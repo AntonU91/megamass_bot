@@ -38,12 +38,14 @@ public class NewMegamassBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        long chatId = update.getMessage().getChatId();
+
         if (update.hasMessage() && update.getMessage().hasText()) {
+            long chatId = update.getMessage().getChatId();
             UserSession userSession = userSessionService.getSession(chatId);
             UserRequest userRequest = getUserRequest(update, chatId, userSession);
             dispatcher.dispatch(userRequest);
         } else if (update.hasCallbackQuery()) {
+            long chatId = update.getCallbackQuery().getMessage().getChatId();
             UserSession userSession = userSessionService.getSession(chatId);
             UserRequest userRequest = getUserRequest(update, chatId, userSession);
             dispatcher.dispatchCallBack(userRequest);

@@ -50,7 +50,7 @@ public class Dispatcher {
     public boolean dispatchCallBack(UserRequest userRequest) {
         for (UserCallBackRequestHandler callBackHandler : callBackHandlers) {
             if (callBackHandler.isCallbackApplicable(userRequest)) {
-                callBackHandler.handleCallBack();
+                callBackHandler.handleCallBack(userRequest);
                 return true;
             }
         }
