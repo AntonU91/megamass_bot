@@ -8,11 +8,13 @@ import com.anton.uzhva.megamazz_bot.service.TelegramService;
 import com.anton.uzhva.megamazz_bot.service.UserService;
 import com.anton.uzhva.megamazz_bot.service.UserSessionService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import javax.persistence.NoResultException;
 
 import static com.anton.uzhva.megamazz_bot.constant.Constants.*;
 
+@Component
 public class StartCommandHandler extends UserRequestHandler {
     TelegramService telegramService;
     UserSession userSession;
@@ -22,10 +24,9 @@ public class StartCommandHandler extends UserRequestHandler {
     KeyboardHelper keyboardHelper;
 
     @Autowired
-    public StartCommandHandler(TelegramService telegramService, UserSession userSession, UserSessionService userSessionService,
+    public StartCommandHandler(TelegramService telegramService, UserSessionService userSessionService,
                                UserService userService, UserRegistrationHandler userRegistrationHandler, KeyboardHelper keyboardHelper) {
         this.telegramService = telegramService;
-        this.userSession = userSession;
         this.userSessionService = userSessionService;
         this.userService = userService;
         this.userRegistrationHandler = userRegistrationHandler;
@@ -43,7 +44,7 @@ public class StartCommandHandler extends UserRequestHandler {
         if (isUserRegistered(request.getChatId())) {
             userService.getUserLogin(request.getChatId());
             telegramService.sendMessage(userSession.getChatId(),
-                    String.format("Hi,%s", userService.getUserLogin(request.getChatId())), keyboardHelper.mainMenu());
+                    String.format("Hi,%s. Choose what you want me to do", userService.getUserLogin(request.getChatId())), keyboardHelper.mainMenu());
             userSession.setState(ConversationState.WAITING_FOR_REQUEST);
             userSessionService.saveUserSession(request.getChatId(), userSession);
         } else {

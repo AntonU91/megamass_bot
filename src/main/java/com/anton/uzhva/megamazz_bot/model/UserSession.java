@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Component;
 
-@Component
 @Builder
 @Data
 @FieldDefaults(level = AccessLevel.PRIVATE)

@@ -51,11 +51,10 @@ public class NewMegamassBot extends TelegramLongPollingBot {
     }
 
     private UserRequest getUserRequest(Update update, long chatId, UserSession userSession) {
-        UserRequest userRequest = UserRequest.builder()
+        return UserRequest.builder()
                 .chatId(chatId)
                 .session(userSession)
                 .update(update)
                 .build();
-        return userRequest;
     }
 }

@@ -48,7 +48,7 @@ addresult - add new training result
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Component
 @Slf4j
-public class MegamazzBot extends TelegramLongPollingBot {
+public class MegamazzBot { // extends TelegramLongPollingBot {
 
     final BotConfig botConfig;
 
@@ -71,22 +71,22 @@ public class MegamazzBot extends TelegramLongPollingBot {
         this.botConfig = botConfig;
     }
 
-    @Override
+    // @Override
     public void onRegister() {
-       log.info("Bot is registered");
+        log.info("Bot is registered");
     }
 
-    @Override
+    //  @Override
     public String getBotUsername() {
         return botConfig.getBotUserName();
     }
 
-    @Override
+    // @Override
     public String getBotToken() {
         return botConfig.getBotToken();
     }
 
-    @Override
+    // @Override
     public void onUpdateReceived(Update update) {
 
         if (update.hasMessage() && update.getMessage().hasText()) {
@@ -98,20 +98,20 @@ public class MegamazzBot extends TelegramLongPollingBot {
     }
 
     private void executeEditMsgText(EditMessageText editMessageText) {
-        try {
-            execute(editMessageText);
-        } catch (TelegramApiException e) {
-            e.printStackTrace();
-        }
+        // try {
+        //  execute(editMessageText);
+//        } catch (TelegramApiException e) {
+//            e.printStackTrace();
+        // }
     }
 
     public void executeMsg(SendMessage sendMessage) {
-        try {
-            execute(sendMessage);
-        } catch (TelegramApiException e) {
-            log.error("Error of processing message " + e.getMessage());
-            e.printStackTrace();
-        }
+        //  try {
+        //  execute(sendMessage);
+//        } catch (TelegramApiException e) {
+//            log.error("Error of processing message " + e.getMessage());
+//            e.printStackTrace();
+        //      }
     }
 
     public SendMessage greetingToUnregisteredUser(Long chatId, Update update) {
@@ -137,13 +137,13 @@ public class MegamazzBot extends TelegramLongPollingBot {
             if (userService.findUserById(update.getMessage().getChatId()).isPresent()) {
                 return;
             }
-            User user = new User();
-            String userLogin = update.getMessage().getText();
-            user.setId(chatId);
-            user.setUserLogin(userLogin);
-            user.setDefaultExercises();
-            userService.saveUser(user);
-            executeMsg(greetingToExistUser(chatId, userLogin));
+//       //     User user = new User();
+//            String userLogin = update.getMessage().getText();
+//            user.setId(chatId);
+//            user.setUserLogin(userLogin);
+//            user.setDefaultExercises();
+//            userService.saveUser(user);
+       //     executeMsg(greetingToExistUser(chatId, userLogin));
 
         }
     }
@@ -160,11 +160,11 @@ public class MegamazzBot extends TelegramLongPollingBot {
                 executeMsg(greetingToUnregisteredUser(chatId, update));
             }
         } else if (msg.equals("/getresultsfile")) {
-            try {
-                execute(createFileAndWriteThereAllRecords(chatId));
-            } catch (TelegramApiException | IOException e) {
-                log.error("Problem with file creating " + e.getMessage());
-            }
+//            try {
+//              //  execute(createFileAndWriteThereAllRecords(chatId));
+//            } catch (TelegramApiException | IOException e) {
+//                log.error("Problem with file creating " + e.getMessage());
+//            }
         } else if (msg.matches("/getresult")) {
             executeMsg(getListOfTrainingWeeks(update));
         } else if (msg.matches(("/cancel"))) {
@@ -196,7 +196,7 @@ public class MegamazzBot extends TelegramLongPollingBot {
         } else if (isPassedMessageTextExerciseName(msg, chatId)) {
             if (checkingText.equals("ADD RESULT")) {
                 executeMsg(createResultRecordAndPrepareForGettingValues(update, msg));
-            } else  if (checkingText.equals("DELETE")){
+            } else if (checkingText.equals("DELETE")) {
                 executeMsg(notifyThatExerciseWasDeleted(msg, chatId));
                 userService.deleteSpecifiedExerciseByUserID(msg, chatId);
             }

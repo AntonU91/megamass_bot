@@ -37,7 +37,7 @@ public class UserService {
     }
 
     public String getUserLogin(long chatId) {
-        return (String) eManager.createQuery("SELECT u.userLogin FROM user u WHERE u.chatId=:chatId")
+        return (String) eManager.createQuery("SELECT u.userLogin FROM user u WHERE u.id=:chatId")
                 .setParameter("chatId", chatId)
                 .getSingleResult();
     }
@@ -46,7 +46,7 @@ public class UserService {
     public void addExercise(long chatId, String newExercise) {
         User user = userRepo.findById(chatId).get();
 
-        String exercises = (String) eManager.createQuery("SELECT u.exercises FROM user u WHERE u.chatId=:id")
+        String exercises = (String) eManager.createQuery("SELECT u.exercises FROM user u WHERE u.id=:id")
                 .setParameter("id", chatId)
                 .getSingleResult();
         exercises += ", " + newExercise;
@@ -56,7 +56,7 @@ public class UserService {
 
     public List<String> getExerciseList(long chatId) {
         List<String> exerciseList = new ArrayList<>();
-        String exercises = (String) eManager.createQuery("SELECT u.exercises FROM user u WHERE u.chatId=:id")
+        String exercises = (String) eManager.createQuery("SELECT u.exercises FROM user u WHERE u.id=:id")
                 .setParameter("id", chatId)
                 .getSingleResult();
         System.out.println(exercises); /// just for log
