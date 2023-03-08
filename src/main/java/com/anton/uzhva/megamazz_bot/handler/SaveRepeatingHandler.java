@@ -52,6 +52,7 @@ public class SaveRepeatingHandler implements UserCallBackRequestHandler {
         exerciseService.saveExercise(exercise);
         userSession.setState(ConversationState.WAITING_FOR_REQUEST);
         userSessionService.saveUserSession(userRequest.getChatId(), userSession);
+        // TODO Finish the method completely
     }
 
     @Override
