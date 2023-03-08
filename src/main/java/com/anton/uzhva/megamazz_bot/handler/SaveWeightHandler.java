@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SaveWeightHandler extends UserRequestHandler{
+public class SaveWeightHandler extends UserRequestHandler {
     UserSessionService userSessionService;
     TelegramService telegramService;
     KeyboardHelper keyboardHelper;
@@ -34,14 +34,14 @@ public class SaveWeightHandler extends UserRequestHandler{
     public void handle(UserRequest userRequest) {
         double weight = Double.parseDouble(userRequest.getUpdate().getMessage().getText());
         UserSession userSession = userSessionService.getSession(userRequest.getChatId());
-        Exercise exercise = new Exercise();
+        Exercise exercise = userSession.getExercise();
         exercise.setWeight(weight);
-        userSession.setExercise(exercise);
         userSession.setState(ConversationState.WAITING_REPEATING_COUNT);
         userSessionService.saveUserSession(userSession.getChatId(), userSession);
         telegramService.sendMessage(userRequest.getChatId(), "Select the number of exercise repetitions",
                 keyboardHelper.countKeyBoard());
     }
+
     @Override
     public boolean isGlobal() {
         return false;

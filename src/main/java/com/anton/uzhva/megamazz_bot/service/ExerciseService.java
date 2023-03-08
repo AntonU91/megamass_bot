@@ -17,14 +17,14 @@ import com.anton.uzhva.megamazz_bot.model.ExerciseRepo;
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
 @org.springframework.stereotype.Service
 @Transactional(readOnly = true)
-public class ExerciseSevice {
+public class ExerciseService {
 
    ExerciseRepo exerciseRepo;
    EntityManager eManager;
 
 
   @Autowired
-  public ExerciseSevice(ExerciseRepo exerciseRepo, EntityManager eManager) {
+  public ExerciseService(ExerciseRepo exerciseRepo, EntityManager eManager) {
     this.eManager = eManager;
     this.exerciseRepo = exerciseRepo;
   }
@@ -40,31 +40,31 @@ public class ExerciseSevice {
 
 
   public List<Exercise> findAllExerciseRecordByUserId(long chatId) {
-    return eManager.createQuery("FROM exercise e where e.user.chatId=:id")
+    return eManager.createQuery(" FROM exercise e where e.user.id=:id")
         .setParameter("id", chatId).getResultList();
   }
 
   public List<Exercise> findAtLeastOneExerciceRecordByUserId(long chatId) {
-    return eManager.createQuery("FROM exercise e where e.user.chatId=:id").setParameter("id", chatId)
+    return eManager.createQuery("FROM exercise e where e.user.id=:id").setParameter("id", chatId)
         .setMaxResults(1)
         .getResultList();
   }
 
   public Object getTheErliestRecord(long chatId) {
-    return eManager.createQuery("FROM exercise e where e.user.chatId=:id order by e.recordDate")
+    return eManager.createQuery("FROM exercise e where e.user.id=:id order by e.recordDate")
         .setParameter("id", chatId)
         .setMaxResults(1).getSingleResult();
   }
 
   public List<Integer> getListOfTrainingWeeksNumber(long chatId) {
     return eManager
-        .createQuery("SELECT DISTINCT e.weekNumber FROM exercise e WHERE e.user.chatId=:id ORDER BY e.weekNumber")
+        .createQuery("SELECT DISTINCT e.weekNumber FROM exercise e WHERE e.user.id=:id ORDER BY e.weekNumber")
         .setParameter("id", chatId)
         .getResultList();
   }
 
   public List<Exercise> getTrainingResultOfConcreteWeek(long chatId, int weekNumber) {
-    return eManager.createQuery("FROM exercise e WHERE  e.user.chatId=:id AND e.weekNumber=:weekNumber ORDER BY e.name, e.weight")
+    return eManager.createQuery("FROM exercise e WHERE  e.user.id=:id AND e.weekNumber=:weekNumber ORDER BY e.name, e.weight")
         .setParameter("weekNumber", weekNumber)
         .setParameter("id", chatId).getResultList();
   }
@@ -75,13 +75,13 @@ public class ExerciseSevice {
   }
 
   public List<Exercise> getAllTrainingsResults(long chatId) {
-    return eManager.createQuery("FROM exercise e WHERE  e.user.chatId=:id ORDER BY e.weekNumber, e.name, e.weight")
+    return eManager.createQuery("FROM exercise e WHERE  e.user.id=:id ORDER BY e.weekNumber, e.name, e.weight")
             .setParameter("id", chatId).getResultList();
   }
 
   @Transactional
   public void deleteAllUserTrainingsResults(long chatId) {
-    eManager.createQuery("DELETE FROM exercise e WHERE e.user.chatId=:chatId")
+    eManager.createQuery("DELETE FROM exercise e WHERE e.user.id=:chatId")
             .setParameter("chatId", chatId).executeUpdate();
   }
 

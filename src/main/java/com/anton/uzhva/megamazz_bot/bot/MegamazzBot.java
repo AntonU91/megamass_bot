@@ -2,10 +2,8 @@ package com.anton.uzhva.megamazz_bot.bot;
 
 import com.anton.uzhva.megamazz_bot.config.BotConfig;
 import com.anton.uzhva.megamazz_bot.model.Exercise;
-import com.anton.uzhva.megamazz_bot.model.ExerciseRepo;
 import com.anton.uzhva.megamazz_bot.model.User;
-import com.anton.uzhva.megamazz_bot.model.UserRepo;
-import com.anton.uzhva.megamazz_bot.service.ExerciseSevice;
+import com.anton.uzhva.megamazz_bot.service.ExerciseService;
 import com.anton.uzhva.megamazz_bot.service.UserService;
 import com.vdurmont.emoji.EmojiParser;
 import lombok.AccessLevel;
@@ -13,8 +11,6 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -25,7 +21,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import javax.persistence.NoResultException;
 import java.io.File;
@@ -57,7 +52,7 @@ public class MegamazzBot { // extends TelegramLongPollingBot {
     Exercise currentExerciseRecord;
 
     @Autowired
-    ExerciseSevice exerciseService;
+    ExerciseService exerciseService;
 
     @Autowired
     UserService userService;

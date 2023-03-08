@@ -39,21 +39,23 @@ public class UserRegistrationHandler extends UserRequestHandler {
     public void handle(UserRequest request) {
         String userLogin = request.getUpdate().getMessage().getText();
         userSession = userSessionService.getSession(request.getChatId());
-        createAndSaveUser(userSession, userLogin);
+        User user = createAndSaveUser(userSession, userLogin);
+        userSession.setUser(user);
         telegramService.sendMessage(userSession.getChatId(),
                 String.format("Hi,%s. Choose what you want me to do", userLogin), keyboardHelper.mainMenu());
         userSession.setState(ConversationState.WAITING_FOR_REQUEST);
         userSessionService.saveUserSession(request.getChatId(), userSession);
     }
 
-    private void createAndSaveUser(UserSession userSession, String userLogin) {
+    private User createAndSaveUser(UserSession userSession, String userLogin) {
         User user = new User(); /// todo find out how to implement Builder and solve the problem with User.class
         user.setUserLogin(userLogin);
         user.setDefaultExercises();
         user.setId(userSession.getChatId());
-        userSession.setUser(user);
+       // userSession.setUser(user);
         userService.saveUser(user);
-        userSessionService.saveUserSession(userSession.getChatId(), userSession);
+      //  userSessionService.saveUserSession(userSession.getChatId(), userSession);
+        return user;
     }
 
     @Override

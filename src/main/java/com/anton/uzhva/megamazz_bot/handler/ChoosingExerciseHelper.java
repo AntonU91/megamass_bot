@@ -1,6 +1,7 @@
 package com.anton.uzhva.megamazz_bot.handler;
 
 import com.anton.uzhva.megamazz_bot.model.ConversationState;
+import com.anton.uzhva.megamazz_bot.model.Exercise;
 import com.anton.uzhva.megamazz_bot.model.UserRequest;
 import com.anton.uzhva.megamazz_bot.model.UserSession;
 import com.anton.uzhva.megamazz_bot.service.TelegramService;
@@ -35,7 +36,11 @@ public class ChoosingExerciseHelper extends UserRequestHandler {
     @Override
     public void handle(UserRequest request) {
         UserSession userSession = userSessionService.getSession(request.getChatId());
+        Exercise exercise = new Exercise();
+        exercise.setName(request.getUpdate().getMessage().getText());
+        userSession.setExercise(exercise);
         telegramService.sendMessage(request.getChatId(),  "Send the the weight you worked with");
+
         userSession.setState(ConversationState.INPUTING_RESULT_WEIGHT);
         userSessionService.saveUserSession(request.getChatId(), userSession);
     }

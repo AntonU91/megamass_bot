@@ -9,4 +9,5 @@ public class Constants {
   public  static  String START_COMMAND = "/start";
   public  static  String ADD_NEW_RESULT = "ADD_RESULT";
   public  static  String REGEX_INPUTED_WEIGHT = "\\s*\\d+[.,]?\\d*";
+  public  static  String REGEX_REPEATING_COUNT = "\\d{1,2}";
 }
