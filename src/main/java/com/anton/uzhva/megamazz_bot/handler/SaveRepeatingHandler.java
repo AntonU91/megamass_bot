@@ -2,10 +2,7 @@ package com.anton.uzhva.megamazz_bot.handler;
 
 import com.anton.uzhva.megamazz_bot.constant.Constants;
 import com.anton.uzhva.megamazz_bot.helper.KeyboardHelper;
-import com.anton.uzhva.megamazz_bot.model.ConversationState;
-import com.anton.uzhva.megamazz_bot.model.Exercise;
-import com.anton.uzhva.megamazz_bot.model.UserRequest;
-import com.anton.uzhva.megamazz_bot.model.UserSession;
+import com.anton.uzhva.megamazz_bot.model.*;
 import com.anton.uzhva.megamazz_bot.service.ExerciseService;
 import com.anton.uzhva.megamazz_bot.service.TelegramService;
 import com.anton.uzhva.megamazz_bot.service.UserService;

@@ -11,4 +11,5 @@ public class Constants {
   public  static  String REGEX_INPUTED_WEIGHT = "\\s*\\d+[.,]?\\d*";
   public  static  String REGEX_REPEATING_COUNT = "\\d{1,2}";
   public  static  String OK = "OK";
+  public  static  String EDIT_RESULT = "EDIT";
 }
