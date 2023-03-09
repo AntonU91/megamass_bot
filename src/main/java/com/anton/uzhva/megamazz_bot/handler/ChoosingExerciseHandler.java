@@ -13,13 +13,13 @@ import org.springframework.stereotype.Component;
 import java.util.NoSuchElementException;
 
 @Component
-public class ChoosingExerciseHelper extends UserRequestHandler {
+public class ChoosingExerciseHandler extends UserRequestHandler {
     UserService userService;
     TelegramService telegramService;
     UserSessionService userSessionService;
 
     @Autowired
-    public ChoosingExerciseHelper(UserService userService, TelegramService telegramService, UserSessionService userSessionService) {
+    public ChoosingExerciseHandler(UserService userService, TelegramService telegramService, UserSessionService userSessionService) {
         this.userService = userService;
         this.telegramService = telegramService;
         this.userSessionService =  userSessionService;

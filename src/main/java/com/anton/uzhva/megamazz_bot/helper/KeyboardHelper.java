@@ -1,5 +1,6 @@
 package com.anton.uzhva.megamazz_bot.helper;
 
+import com.anton.uzhva.megamazz_bot.service.ExerciseService;
 import com.anton.uzhva.megamazz_bot.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,10 +16,12 @@ import java.util.List;
 @Component
 public class KeyboardHelper {
     UserService userService;
+    ExerciseService exerciseService;
 
     @Autowired
-    public KeyboardHelper(UserService userService) {
+    public KeyboardHelper(UserService userService, ExerciseService exerciseService) {
         this.userService = userService;
+        this.exerciseService = exerciseService;
     }
 
     public InlineKeyboardMarkup mainMenu() {
@@ -67,6 +70,7 @@ public class KeyboardHelper {
         return ReplyKeyboardMarkup.builder()
                 .keyboard(rowList)
                 .oneTimeKeyboard(true)
+                .resizeKeyboard(true)
                 .build();
     }
 
@@ -106,5 +110,26 @@ public class KeyboardHelper {
                 .build();
     }
 
-
+    public InlineKeyboardMarkup listOfTrainingWeeks(long chatId) {
+        List<Integer> trainingWeekNumberList = exerciseService.getListOfTrainingWeeksNumber(chatId);
+        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+        List<InlineKeyboardButton> row = new ArrayList<>();
+        for (int i = 0; i < trainingWeekNumberList.size(); i++) {
+            row.add(InlineKeyboardButton
+                    .builder()
+                    .text(String.valueOf(trainingWeekNumberList.get(i)))
+                    .callbackData("WEEK-" + trainingWeekNumberList.get(i))
+                    .build());
+            if ((i + 1) % 3 == 0) {
+                rowList.add(row);
+                row = new ArrayList<>();
+            }
+            if (i + 1 == trainingWeekNumberList.size()) {
+                rowList.add(row);
+            }
+        }
+        return InlineKeyboardMarkup.builder()
+                .keyboard(rowList)
+                .build();
+    }
 }
