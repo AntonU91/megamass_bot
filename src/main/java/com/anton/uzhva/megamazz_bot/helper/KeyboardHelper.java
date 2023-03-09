@@ -44,18 +44,18 @@ public class KeyboardHelper {
     }
 
     public ReplyKeyboardMarkup exercisesList(long chatId) {
-        List<String> exerciseNames = userService.getExerciseList(chatId);
+        List<String> exerciseNamesList = userService.getExerciseList(chatId);
         KeyboardRow row = new KeyboardRow();
         List<KeyboardRow> rowList = new ArrayList<>();
-        for (int i = 0; i < exerciseNames.size(); i++) {
-            KeyboardButton button = new KeyboardButton();
-            button.setText(exerciseNames.get(i));
-            row.add(button);
+         for (int i = 0; i < exerciseNamesList.size(); i++) {
+            row.add(KeyboardButton.builder()
+                    .text(exerciseNamesList.get(i))
+                    .build());
             if ((i + 1) % 2 == 0) {
                 rowList.add(row);
                 row = new KeyboardRow();
             }
-            if (i + 1 == exerciseNames.size()) {
+            if (i + 1 == exerciseNamesList.size()) {
                 rowList.add(row);
             }
         }
@@ -143,6 +143,29 @@ public class KeyboardHelper {
         rowList.add(row1);
         return InlineKeyboardMarkup.builder()
                 .keyboard(rowList)
+                .build();
+    }
+
+    public ReplyKeyboardMarkup listOfExercisesToDelete(long chatId) {
+        List<String> exerciseNamesList = userService.getExerciseList(chatId);
+        KeyboardRow row = new KeyboardRow();
+        List<KeyboardRow> rowList = new ArrayList<>();
+        for (int i = 0; i < exerciseNamesList.size(); i++) {
+            row.add(KeyboardButton.builder()
+                    .text(exerciseNamesList.get(i))
+                    .build());
+            if ((i + 1) % 2 == 0) {
+                rowList.add(row);
+                row = new KeyboardRow();
+            }
+            if (i + 1 == exerciseNamesList.size()) {
+                rowList.add(row);
+            }
+        }
+        return ReplyKeyboardMarkup.builder()
+                .keyboard(rowList)
+                .oneTimeKeyboard(true)
+                .resizeKeyboard(true)
                 .build();
     }
 }

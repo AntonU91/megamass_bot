@@ -26,7 +26,7 @@ public class SaveWeightHandler extends UserRequestHandler {
 
     @Override
     public boolean isApplicable(UserRequest request) {
-        return isValidTextMessage(request.getUpdate(), Constants.REGEX_INPUTED_WEIGHT) &&
+        return isValidTextMessage(request.getUpdate(), Constants.REGEX_INPUTTED_WEIGHT) &&
                 request.getSession().getState().equals(ConversationState.INPUTING_RESULT_WEIGHT);
     }
 
