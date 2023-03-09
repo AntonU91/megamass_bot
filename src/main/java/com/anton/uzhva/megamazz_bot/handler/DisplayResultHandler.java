@@ -53,26 +53,9 @@ public class DisplayResultHandler implements UserCallBackRequestHandler {
         List<Exercise> exercisesResult = exerciseService.getTrainingResultOfConcreteWeek(chatId, weekNumber);
         results.append("Training week №").append(weekNumber).append("\n").append("\n");
         for (Exercise temp : exercisesResult) {
-            results.append(String.format("%s - %.1f for %d time(s)\n", temp.getName(), temp.getWeight(),
+            results.append(String.format("%s - %.1f for %d time(s)%n", temp.getName(), temp.getWeight(),
                     temp.getCount()));
         }
         return results.toString();
     }
-
-//    private SendMessage getTrainingResult(Update update) {
-//        SendMessage message = new SendMessage();
-//        StringBuilder results = new StringBuilder();
-//        long chatId = update.getCallbackQuery().getMessage().getChatId();
-//        Integer weekNumber = Integer.parseInt(update.getCallbackQuery().getData().replace("WEEK-", ""));
-//        List<Exercise> exercisesResult = exerciseService.getTrainingResultOfConcreteWeek(chatId, weekNumber);
-//        results.append("Тренировочная неделя №").append(weekNumber).append("\n").append("\n");
-//        for (Exercise temp : exercisesResult) {
-//            results.append(String.format("Упражнение %s - %.1f кг на %d раз\n", temp.getName(), temp.getWeight(),
-//                    temp.getCount()));
-//        }
-//        message.setChatId(chatId);
-//        message.setText(results.toString());
-//        message.setReplyMarkup(acceptInfo());
-//        return message;
-//    }
 }
