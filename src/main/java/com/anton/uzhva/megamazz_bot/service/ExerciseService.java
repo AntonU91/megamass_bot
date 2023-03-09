@@ -64,7 +64,7 @@ public class ExerciseService {
   }
 
   public List<Exercise> getTrainingResultOfConcreteWeek(long chatId, int weekNumber) {
-    return eManager.createQuery("FROM exercise e WHERE  e.user.id=:id AND e.weekNumber=:weekNumber ORDER BY e.name, e.weight")
+    return eManager.createQuery("  FROM exercise e WHERE  e.user.id=:id AND e.weekNumber=:weekNumber ORDER BY e.name, e.weight")
         .setParameter("weekNumber", weekNumber)
         .setParameter("id", chatId).getResultList();
   }

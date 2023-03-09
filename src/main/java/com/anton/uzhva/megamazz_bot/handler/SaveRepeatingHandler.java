@@ -52,7 +52,8 @@ public class SaveRepeatingHandler implements UserCallBackRequestHandler {
         exerciseService.saveExercise(exercise);
         userSession.setState(ConversationState.WAITING_FOR_REQUEST);
         userSessionService.saveUserSession(userRequest.getChatId(), userSession);
-        // TODO Finish the method completely
+        telegramService.editMessage(userRequest.getUpdate(), String.format("Nice! Your result in exercise %s - %.1f kg for %d times",
+                exercise.getName(), exercise.getWeight(), exercise.getCount()), keyboardHelper.acceptOrChangeResultValue());
     }
 
     @Override

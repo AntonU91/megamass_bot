@@ -22,16 +22,16 @@ public class KeyboardHelper {
     }
 
     public InlineKeyboardMarkup mainMenu() {
-        InlineKeyboardButton buttonSeeResults = new InlineKeyboardButton();
-        InlineKeyboardButton buttonInsertNewResults = new InlineKeyboardButton();
-        buttonSeeResults.setText("Посмотреть результаты");
-        buttonSeeResults.setCallbackData("GET_RESULT");
-        buttonInsertNewResults.setText("Внести новыe результаты");
-        buttonInsertNewResults.setCallbackData("ADD_RESULT");
         List<InlineKeyboardButton> row1 = new ArrayList<>();
         List<InlineKeyboardButton> row2 = new ArrayList<>();
-        row1.add(buttonSeeResults);
-        row2.add(buttonInsertNewResults);
+        row1.add(InlineKeyboardButton.builder()
+                .text("Watch results")
+                .callbackData("GET_RESULT")
+                .build());
+        row2.add(InlineKeyboardButton.builder()
+                .text("Add new result")
+                .callbackData("ADD_RESULT")
+                .build());
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
         rowList.add(row1);
         rowList.add(row2);
@@ -56,13 +56,13 @@ public class KeyboardHelper {
                 rowList.add(row);
             }
         }
-        KeyboardButton buttonForAddNewExrcs = new KeyboardButton();
-        KeyboardButton buttonToDeleteExrcs = new KeyboardButton();
-        buttonForAddNewExrcs.setText("Add exercise");
-        buttonToDeleteExrcs.setText("Delete exercise");
         KeyboardRow rowForDeletingAndAddingExercise = new KeyboardRow();
-        rowForDeletingAndAddingExercise.add(buttonForAddNewExrcs);
-        rowForDeletingAndAddingExercise.add(buttonToDeleteExrcs);
+        rowForDeletingAndAddingExercise.add(KeyboardButton.builder()
+                .text("Add exercise")
+                .build());
+        rowForDeletingAndAddingExercise.add(KeyboardButton.builder()
+                .text("Delete exercise")
+                .build());
         rowList.add(rowForDeletingAndAddingExercise);
         return ReplyKeyboardMarkup.builder()
                 .keyboard(rowList)
@@ -86,6 +86,23 @@ public class KeyboardHelper {
         }
         return InlineKeyboardMarkup.builder()
                 .keyboard(rowlist)
+                .build();
+    }
+
+    public InlineKeyboardMarkup acceptOrChangeResultValue() {
+        List<InlineKeyboardButton> row = new ArrayList<>();
+        row.add(InlineKeyboardButton.builder()
+                .text("OK")
+                .callbackData("OK")
+                .build());
+        row.add(InlineKeyboardButton.builder()
+                .text("Edit")
+                .callbackData("EDIT")
+                .build());
+        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+        rowList.add(row);
+        return InlineKeyboardMarkup.builder()
+                .keyboard(rowList)
                 .build();
     }
 
