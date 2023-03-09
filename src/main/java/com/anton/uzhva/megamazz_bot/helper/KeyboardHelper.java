@@ -132,4 +132,17 @@ public class KeyboardHelper {
                 .keyboard(rowList)
                 .build();
     }
+
+    public InlineKeyboardMarkup acceptInfo() {
+        List<InlineKeyboardButton> row1 = new ArrayList<>();
+        row1.add(InlineKeyboardButton.builder()
+                .text("✅Ok")
+                .callbackData("OK")
+                .build());
+        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+        rowList.add(row1);
+        return InlineKeyboardMarkup.builder()
+                .keyboard(rowList)
+                .build();
+    }
 }

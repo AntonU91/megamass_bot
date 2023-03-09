@@ -13,5 +13,6 @@ public class Constants {
   public  static  String OK = "OK";
   public  static  String EDIT_RESULT = "EDIT";
   public static  String  GET_RESULT = "GET_RESULT";
+  public  static  String REGEX_TRAINING_WEEK = "WEEK-\\d{1,3}";
 
 }
