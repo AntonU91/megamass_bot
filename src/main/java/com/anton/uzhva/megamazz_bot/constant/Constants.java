@@ -5,7 +5,6 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(makeFinal = true)
 public abstract class Constants {
     public static String REGEX_USER_LOGIN = "^\\s*\\D+.*";
-    public static String START_COMMAND = "/start";
     public static String ADD_NEW_RESULT = "ADD_RESULT";
     public static String REGEX_INPUTTED_WEIGHT = "\\s*\\d+[.,]?\\d*";
     public static String REGEX_REPEATING_COUNT = "\\d{1,2}";

@@ -59,7 +59,6 @@ public class TelegramService {
         execute(sendMsg);
     }
 
-
     public void editMessage(Update update, String msgText, InlineKeyboardMarkup inlineKeyboardMarkup) {
         long chatId;
         int messageId;
@@ -78,6 +77,8 @@ public class TelegramService {
                 .build();
         execute(editMessageText);
     }
+
+    public void sendTextFile()
 
     private void execute(BotApiMethod<?> botApiMethod) {
         try {

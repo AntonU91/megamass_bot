@@ -1,5 +1,8 @@
-package com.anton.uzhva.megamazz_bot.handler;
+package com.anton.uzhva.megamazz_bot.handler.command_handler;
 
+import com.anton.uzhva.megamazz_bot.commands.BotCommands;
+import com.anton.uzhva.megamazz_bot.handler.UserRegistrationHandler;
+import com.anton.uzhva.megamazz_bot.handler.UserRequestHandler;
 import com.anton.uzhva.megamazz_bot.helper.KeyboardHelper;
 import com.anton.uzhva.megamazz_bot.model.ConversationState;
 import com.anton.uzhva.megamazz_bot.model.UserRequest;
@@ -11,8 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.NoResultException;
-
-import static com.anton.uzhva.megamazz_bot.constant.Constants.*;
 
 @Component
 public class StartCommandHandler extends UserRequestHandler {
@@ -35,7 +36,7 @@ public class StartCommandHandler extends UserRequestHandler {
 
     @Override
     public boolean isApplicable(UserRequest request) {
-        return isCommand(request.getUpdate(), START_COMMAND);
+        return isCommand(request.getUpdate(), BotCommands.START);
     }
 
     @Override

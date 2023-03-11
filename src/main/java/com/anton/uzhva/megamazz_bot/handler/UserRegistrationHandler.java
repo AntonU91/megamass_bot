@@ -52,9 +52,7 @@ public class UserRegistrationHandler extends UserRequestHandler {
         user.setUserLogin(userLogin);
         user.setDefaultExercises();
         user.setId(userSession.getChatId());
-       // userSession.setUser(user);
         userService.saveUser(user);
-      //  userSessionService.saveUserSession(userSession.getChatId(), userSession);
         return user;
     }
 

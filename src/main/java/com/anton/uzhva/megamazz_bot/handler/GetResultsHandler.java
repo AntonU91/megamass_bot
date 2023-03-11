@@ -30,7 +30,6 @@ public class GetResultsHandler implements UserCallBackRequestHandler {
                 keyboardHelper.listOfTrainingWeeks(userRequest.getChatId()));
         userSession.setState(ConversationState.CHOOSING_TRAINING_WEEK);
         userSessionService.saveUserSession(userRequest.getChatId(), userSession);
-
     }
 
     @Override

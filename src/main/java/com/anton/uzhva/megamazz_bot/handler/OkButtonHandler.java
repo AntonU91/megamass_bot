@@ -11,13 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class OkButtonHandler implements  UserCallBackRequestHandler{
+public class OkButtonHandler implements UserCallBackRequestHandler {
     TelegramService telegramService;
     UserSessionService userSessionService;
     KeyboardHelper keyboardHelper;
 
     @Autowired
-    public OkButtonHandler(TelegramService telegramService, UserSessionService userSessionService,KeyboardHelper keyboardHelper ) {
+    public OkButtonHandler(TelegramService telegramService, UserSessionService userSessionService, KeyboardHelper keyboardHelper) {
         this.telegramService = telegramService;
         this.userSessionService = userSessionService;
         this.keyboardHelper = keyboardHelper;
@@ -25,13 +25,15 @@ public class OkButtonHandler implements  UserCallBackRequestHandler{
 
     @Override
     public void handleCallBack(UserRequest userRequest) {
-        telegramService.sendMessage(userRequest.getChatId(),"Moving on!", keyboardHelper.mainMenu());
-
+        UserSession userSession = userSessionService.getSession(userRequest.getChatId());
+        telegramService.sendMessage(userRequest.getChatId(), "Moving on!", keyboardHelper.mainMenu());
+        userSession.setState(ConversationState.WAITING_FOR_REQUEST);
+        userSessionService.saveUserSession(userRequest.getChatId(), userSession);
     }
 
     @Override
     public boolean isCallbackApplicable(UserRequest userRequest) {
-        return  userRequest.getSession().getState().equals(ConversationState.WAITING_FOR_REQUEST)
+        return userRequest.getSession().getState().equals(ConversationState.WAITING_FOR_REQUEST)
                 && isValidCallBack(userRequest.getUpdate(), Constants.OK);
     }
 

@@ -1,14 +1,11 @@
 package com.anton.uzhva.megamazz_bot;
 
-import com.anton.uzhva.megamazz_bot.handler.StartCommandHandler;
 import com.anton.uzhva.megamazz_bot.handler.UserCallBackRequestHandler;
 import com.anton.uzhva.megamazz_bot.handler.UserRequestHandler;
 import com.anton.uzhva.megamazz_bot.model.UserRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
