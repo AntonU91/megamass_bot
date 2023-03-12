@@ -2,8 +2,11 @@ package com.anton.uzhva.megamazz_bot.handler.command_handler;
 
 import com.anton.uzhva.megamazz_bot.commands.BotCommands;
 import com.anton.uzhva.megamazz_bot.handler.UserRequestHandler;
+import com.anton.uzhva.megamazz_bot.helper.KeyboardHelper;
+import com.anton.uzhva.megamazz_bot.model.ConversationState;
 import com.anton.uzhva.megamazz_bot.model.Exercise;
 import com.anton.uzhva.megamazz_bot.model.UserRequest;
+import com.anton.uzhva.megamazz_bot.model.UserSession;
 import com.anton.uzhva.megamazz_bot.service.ExerciseService;
 import com.anton.uzhva.megamazz_bot.service.TelegramService;
 import com.anton.uzhva.megamazz_bot.service.UserSessionService;
@@ -22,12 +25,14 @@ public class GetResultsFileCommandHandler extends UserRequestHandler {
     ExerciseService exerciseService;
     TelegramService telegramService;
     UserSessionService userSessionService;
+    KeyboardHelper keyboardHelper;
 
     @Autowired
-    public GetResultsFileCommandHandler(ExerciseService exerciseService, TelegramService telegramService, UserSessionService userSessionService) {
+    public GetResultsFileCommandHandler(ExerciseService exerciseService, TelegramService telegramService, UserSessionService userSessionService, KeyboardHelper keyboardHelper) {
         this.exerciseService = exerciseService;
         this.telegramService = telegramService;
         this.userSessionService = userSessionService;
+        this.keyboardHelper = keyboardHelper;
     }
 
     @Override
@@ -37,7 +42,10 @@ public class GetResultsFileCommandHandler extends UserRequestHandler {
 
     @Override
     public void handle(UserRequest request) {
-
+        UserSession userSession = userSessionService.getSession(request.getChatId());
+        telegramService.sendTextFileWithResults(request.getUpdate(), keyboardHelper.acceptInfo());
+        userSession.setState(ConversationState.WAITING_FOR_REQUEST);
+        userSessionService.saveUserSession(request.getChatId(), userSession);
     }
 
     @Override
@@ -45,35 +53,4 @@ public class GetResultsFileCommandHandler extends UserRequestHandler {
         return true;
     }
 
-
-//    private SendDocument createFileAndWriteThereAllRecords(long chatId) throws IOException {
-//        List<Exercise> exerciseList = exerciseService.getAllTrainingsResults(chatId);
-//        java.io.File file = new File("results" + fileCounter + ".txt");
-//        FileWriter writer = new FileWriter(file);
-//        StringBuilder stringBuilder = new StringBuilder();
-//        int counter = 0;
-//        for (Exercise exercise : exerciseList) {
-//            if (exercise.getWeekNumber() > counter) {
-//                counter = exercise.getWeekNumber();
-//                stringBuilder.append("\n")
-//                        .append(exercise.getWeekNumber())
-//                        .append(" тренировочная неделя")
-//                        .append("\n");
-//            }
-//            stringBuilder.append(exercise.getName())
-//                    .append(" , ")
-//                    .append(exercise.getWeight())
-//                    .append(" кг на ")
-//                    .append(exercise.getCount()).append(" раз, ")
-//                    .append(exercise.getWeekNumber())
-//                    .append(" неделя")
-//                    .append("\n");
-//        }
-//        writer.write(stringBuilder.toString());
-//        writer.close();
-//        InputFile inputFile = new InputFile(file);
-//        SendDocument document = new SendDocument();
-//        document.setChatId(chatId);
-//        document.setDocument(inputFile);
-//        return document;
-//    }
+}
