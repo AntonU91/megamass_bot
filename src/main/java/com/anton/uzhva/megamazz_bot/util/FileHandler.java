@@ -2,6 +2,8 @@ package com.anton.uzhva.megamazz_bot.util;
 
 import com.anton.uzhva.megamazz_bot.model.Exercise;
 import com.anton.uzhva.megamazz_bot.service.ExerciseService;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +17,7 @@ import java.util.List;
 
 
 @Component
+@Log4j2
 public class FileHandler {
 
     public final ExerciseService exerciseService;
@@ -25,16 +28,11 @@ public class FileHandler {
     }
 
     public File getFileWithTraningResults(long chatId) {
-        String currentDate = new Date().toString();
+        Date currentDate = new Date();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd-MM-yyyy");
-        File file = null;
-        try {
-            file = new File("results_" + simpleDateFormat.parse(currentDate));
-            fillOutFileWithTrainingResults(chatId, file);
-            return file;
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        String formattedCurrentDate = simpleDateFormat.format(currentDate);
+        File file = new File("results_" + formattedCurrentDate + ".txt");
+        fillOutFileWithTrainingResults(chatId, file);
         return file;
     }
 
