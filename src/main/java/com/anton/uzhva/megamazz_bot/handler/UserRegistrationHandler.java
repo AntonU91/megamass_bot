@@ -48,7 +48,7 @@ public class UserRegistrationHandler extends UserRequestHandler {
     }
 
     private User createAndSaveUser(UserSession userSession, String userLogin) {
-        User user = new User(); /// todo find out how to implement Builder and solve the problem with User.class
+        User user = new User();
         user.setUserLogin(userLogin);
         user.setDefaultExercises();
         user.setId(userSession.getChatId());

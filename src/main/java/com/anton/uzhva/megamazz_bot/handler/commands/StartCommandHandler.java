@@ -1,4 +1,4 @@
-package com.anton.uzhva.megamazz_bot.handler.command_handler;
+package com.anton.uzhva.megamazz_bot.handler.commands;
 
 import com.anton.uzhva.megamazz_bot.commands.BotCommands;
 import com.anton.uzhva.megamazz_bot.handler.UserRegistrationHandler;
@@ -10,6 +10,7 @@ import com.anton.uzhva.megamazz_bot.model.UserSession;
 import com.anton.uzhva.megamazz_bot.service.TelegramService;
 import com.anton.uzhva.megamazz_bot.service.UserService;
 import com.anton.uzhva.megamazz_bot.service.UserSessionService;
+import com.anton.uzhva.megamazz_bot.util.UserRegistrationChecker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -42,7 +43,7 @@ public class StartCommandHandler extends UserRequestHandler {
     @Override
     public void handle(UserRequest request) {
         userSession = userSessionService.getSession(request.getChatId());
-        if (isUserRegistered(request.getChatId())) {
+        if (UserRegistrationChecker.isUserRegistered(userService, request.getChatId())) {
             userService.getUserLogin(request.getChatId());
             telegramService.sendMessage(userSession.getChatId(),
                     String.format("Hi,%s. Choose what you want me to do", userService.getUserLogin(request.getChatId())), keyboardHelper.mainMenu());
@@ -65,12 +66,4 @@ public class StartCommandHandler extends UserRequestHandler {
         return true;
     }
 
-    private boolean isUserRegistered(long chatId) {
-        try {
-            userService.getUserLogin(chatId);
-        } catch (NoResultException ex) {
-            return false;
-        }
-        return true;
-    }
 }

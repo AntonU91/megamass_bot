@@ -1,13 +1,16 @@
-package com.anton.uzhva.megamazz_bot.handler.command_handler;
+package com.anton.uzhva.megamazz_bot.handler.commands;
 
 import com.anton.uzhva.megamazz_bot.commands.BotCommands;
+import com.anton.uzhva.megamazz_bot.handler.AskUserToRegistHandler;
 import com.anton.uzhva.megamazz_bot.handler.UserRequestHandler;
 import com.anton.uzhva.megamazz_bot.helper.KeyboardHelper;
 import com.anton.uzhva.megamazz_bot.model.ConversationState;
 import com.anton.uzhva.megamazz_bot.model.UserRequest;
 import com.anton.uzhva.megamazz_bot.model.UserSession;
 import com.anton.uzhva.megamazz_bot.service.TelegramService;
+import com.anton.uzhva.megamazz_bot.service.UserService;
 import com.anton.uzhva.megamazz_bot.service.UserSessionService;
+import com.anton.uzhva.megamazz_bot.util.UserRegistrationChecker;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -18,12 +21,16 @@ public class CancelCommandHandler extends UserRequestHandler {
     UserSessionService userSessionService;
     TelegramService telegramService;
     KeyboardHelper keyboardHelper;
+    UserService userService;
+    AskUserToRegistHandler askUserToRegistHandler;
 
     @Autowired
-    public CancelCommandHandler(UserSessionService userSessionService, TelegramService telegramService, KeyboardHelper keyboardHelper) {
+    public CancelCommandHandler(UserSessionService userSessionService, TelegramService telegramService, KeyboardHelper keyboardHelper, UserService userService, AskUserToRegistHandler askUserToRegistHandler) {
         this.userSessionService = userSessionService;
         this.telegramService = telegramService;
         this.keyboardHelper = keyboardHelper;
+        this.userService = userService;
+        this.askUserToRegistHandler = askUserToRegistHandler;
     }
 
     @Override
@@ -33,11 +40,14 @@ public class CancelCommandHandler extends UserRequestHandler {
 
     @Override
     public void handle(UserRequest request) {
-        UserSession test = request.getSession();
         UserSession userSession = userSessionService.getSession(request.getChatId());
-        telegramService.sendMessage(request.getChatId(), "Moving on!", keyboardHelper.mainMenu());
-        userSession.setState(ConversationState.WAITING_FOR_REQUEST);
-        userSessionService.saveUserSession(request.getChatId(), userSession);
+        if (!UserRegistrationChecker.isUserRegistered(userService, request.getChatId())) {
+            askUserToRegistHandler.handle(request);
+        } else {
+            telegramService.sendMessage(request.getChatId(), "Moving on!", keyboardHelper.mainMenu());
+            userSession.setState(ConversationState.WAITING_FOR_REQUEST);
+            userSessionService.saveUserSession(request.getChatId(), userSession);
+        }
     }
 
     @Override

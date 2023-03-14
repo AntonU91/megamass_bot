@@ -1,4 +1,4 @@
-package com.anton.uzhva.megamazz_bot.handler.command_handler;
+package com.anton.uzhva.megamazz_bot.handler;
 
 import com.anton.uzhva.megamazz_bot.constant.Constants;
 import com.anton.uzhva.megamazz_bot.handler.UserCallBackRequestHandler;
@@ -31,7 +31,8 @@ public class DeleteAllResultsHandlers implements UserCallBackRequestHandler {
     public void handleCallBack(UserRequest userRequest) {
         UserSession userSession = userSessionService.getSession(userRequest.getChatId());
         exerciseService.deleteAllUserTrainingsResults(userRequest.getChatId());
-        telegramService.sendMessage(userRequest.getChatId(), " All training results was deleted.\nMoving on!", keyboardHelper.mainMenu());
+        telegramService.sendMessage(userRequest.getChatId(), " All training results was deleted.\nMoving on!",
+                keyboardHelper.mainMenu());
         userSession.setState(ConversationState.WAITING_FOR_REQUEST);
         userSessionService.saveUserSession(userRequest.getChatId(), userSession);
     }
