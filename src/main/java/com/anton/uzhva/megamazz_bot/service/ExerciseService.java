@@ -85,4 +85,9 @@ public class ExerciseService {
             .setParameter("chatId", chatId).executeUpdate();
   }
 
+  public Object getExercisesCountByUserID(long chatId) {
+   return   eManager.createQuery(" SELECT COUNT(*) FROM exercise e WHERE e.user.id=:id ")
+            .setParameter("id", chatId).getSingleResult();
+  }
+
 }
