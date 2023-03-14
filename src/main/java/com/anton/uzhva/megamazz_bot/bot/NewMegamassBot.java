@@ -55,7 +55,7 @@ public class NewMegamassBot extends TelegramLongPollingBot {
         return UserRequest.builder()
                 .chatId(chatId)
                 .session(userSession) // in this place reference UserSession userSession from UserRequest
-                // and reference UserSession from HashMap of UserSessionService begin to point on one object
+                // and reference UserSession from HashMap of UserSessionService begin to point at one object
                 .update(update)
                 .build();
     }

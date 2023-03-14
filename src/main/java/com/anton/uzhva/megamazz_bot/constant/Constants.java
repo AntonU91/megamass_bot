@@ -16,6 +16,8 @@ public abstract class Constants {
     public static String DELETE_EXERCISE = "Delete exercise";
     public static String REGEX_NEW_EXERCISE = "^\\s*\\D+.*";
     public static String REGEX_DELETE_EXERCISE = "^\\s*\\D+.*";
+    public static String DELETE_ALL_RESULTS = "DELETE_RESULTS";
+    public static String CANCEL = "CANCEL";
 
 
 }

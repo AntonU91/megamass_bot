@@ -1,5 +1,6 @@
 package com.anton.uzhva.megamazz_bot.helper;
 
+import com.anton.uzhva.megamazz_bot.constant.Constants;
 import com.anton.uzhva.megamazz_bot.service.ExerciseService;
 import com.anton.uzhva.megamazz_bot.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +30,11 @@ public class KeyboardHelper {
         List<InlineKeyboardButton> row2 = new ArrayList<>();
         row1.add(InlineKeyboardButton.builder()
                 .text("Watch results")
-                .callbackData("GET_RESULT")
+                .callbackData(Constants.GET_RESULT)
                 .build());
         row2.add(InlineKeyboardButton.builder()
                 .text("Add new result")
-                .callbackData("ADD_RESULT")
+                .callbackData(Constants.ADD_NEW_RESULT)
                 .build());
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
         rowList.add(row1);
@@ -47,7 +48,7 @@ public class KeyboardHelper {
         List<String> exerciseNamesList = userService.getExerciseList(chatId);
         KeyboardRow row = new KeyboardRow();
         List<KeyboardRow> rowList = new ArrayList<>();
-         for (int i = 0; i < exerciseNamesList.size(); i++) {
+        for (int i = 0; i < exerciseNamesList.size(); i++) {
             row.add(KeyboardButton.builder()
                     .text(exerciseNamesList.get(i))
                     .build());
@@ -97,11 +98,11 @@ public class KeyboardHelper {
         List<InlineKeyboardButton> row = new ArrayList<>();
         row.add(InlineKeyboardButton.builder()
                 .text("OK")
-                .callbackData("OK")
+                .callbackData(Constants.OK)
                 .build());
         row.add(InlineKeyboardButton.builder()
                 .text("Edit")
-                .callbackData("EDIT")
+                .callbackData(Constants.EDIT_RESULT)
                 .build());
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
         rowList.add(row);
@@ -137,7 +138,7 @@ public class KeyboardHelper {
         List<InlineKeyboardButton> row1 = new ArrayList<>();
         row1.add(InlineKeyboardButton.builder()
                 .text("✅Ok")
-                .callbackData("OK")
+                .callbackData(Constants.OK)
                 .build());
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
         rowList.add(row1);
@@ -168,4 +169,22 @@ public class KeyboardHelper {
                 .resizeKeyboard(true)
                 .build();
     }
+
+    public InlineKeyboardMarkup acceptOrCancel() {
+        List<InlineKeyboardButton> row = new ArrayList<>();
+        row.add(InlineKeyboardButton.builder()
+                .text("Yes")
+                .callbackData(Constants.DELETE_ALL_RESULTS)
+                .build());
+        row.add(InlineKeyboardButton.builder()
+                .text("Cancel")
+                .callbackData(Constants.CANCEL)
+                .build());
+        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+        rowList.add(row);
+        return InlineKeyboardMarkup.builder()
+                .keyboard(rowList)
+                .build();
+    }
+
 }
