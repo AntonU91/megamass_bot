@@ -1,4 +1,4 @@
-package com.anton.uzhva.megamazz_bot.handler.commands;
+package com.anton.uzhva.megamazz_bot.handler.commands_handler;
 
 import com.anton.uzhva.megamazz_bot.commands.BotCommands;
 import com.anton.uzhva.megamazz_bot.handler.AskUserToRegistHandler;
@@ -11,23 +11,21 @@ import com.anton.uzhva.megamazz_bot.service.TelegramService;
 import com.anton.uzhva.megamazz_bot.service.UserService;
 import com.anton.uzhva.megamazz_bot.service.UserSessionService;
 import com.anton.uzhva.megamazz_bot.util.UserRegistrationChecker;
-import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 
 @Component
-public class CancelCommandHandler extends UserRequestHandler {
-    UserSessionService userSessionService;
+public class DeleteAllResultsCommandHandler extends UserRequestHandler {
     TelegramService telegramService;
+    UserSessionService userSessionService;
     KeyboardHelper keyboardHelper;
     UserService userService;
     AskUserToRegistHandler askUserToRegistHandler;
 
     @Autowired
-    public CancelCommandHandler(UserSessionService userSessionService, TelegramService telegramService, KeyboardHelper keyboardHelper, UserService userService, AskUserToRegistHandler askUserToRegistHandler) {
-        this.userSessionService = userSessionService;
+    public DeleteAllResultsCommandHandler(TelegramService telegramService, UserSessionService userSessionService, KeyboardHelper keyboardHelper, UserService userService, AskUserToRegistHandler askUserToRegistHandler) {
         this.telegramService = telegramService;
+        this.userSessionService = userSessionService;
         this.keyboardHelper = keyboardHelper;
         this.userService = userService;
         this.askUserToRegistHandler = askUserToRegistHandler;
@@ -35,7 +33,7 @@ public class CancelCommandHandler extends UserRequestHandler {
 
     @Override
     public boolean isApplicable(UserRequest request) {
-        return isCommand(request.getUpdate(), BotCommands.CANCEL);
+        return isCommand(request.getUpdate(), BotCommands.DELETE_ALL_RESULTS);
     }
 
     @Override
@@ -44,7 +42,7 @@ public class CancelCommandHandler extends UserRequestHandler {
         if (!UserRegistrationChecker.isUserRegistered(userService, request.getChatId())) {
             askUserToRegistHandler.handle(request);
         } else {
-            telegramService.sendMessage(request.getChatId(), "Moving on!", keyboardHelper.mainMenu());
+            telegramService.sendMessage(request.getChatId(), "You want to delete all training records, are you sure?\n" + "I recommend saving the results before deleting with the \"/getresultsfile\" command", keyboardHelper.acceptOrCancel());
             userSession.setState(ConversationState.WAITING_FOR_REQUEST);
             userSessionService.saveUserSession(request.getChatId(), userSession);
         }

@@ -1,8 +1,7 @@
 package com.anton.uzhva.megamazz_bot.handler;
 
 import com.anton.uzhva.megamazz_bot.constant.Constants;
-import com.anton.uzhva.megamazz_bot.handler.UserCallBackRequestHandler;
-import com.anton.uzhva.megamazz_bot.handler.commands.CancelCommandHandler;
+import com.anton.uzhva.megamazz_bot.handler.commands_handler.CancelCommandHandler;
 import com.anton.uzhva.megamazz_bot.model.ConversationState;
 import com.anton.uzhva.megamazz_bot.model.UserRequest;
 import org.springframework.beans.factory.annotation.Autowired;

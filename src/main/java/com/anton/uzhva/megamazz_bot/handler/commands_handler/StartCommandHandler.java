@@ -1,4 +1,4 @@
-package com.anton.uzhva.megamazz_bot.handler.commands;
+package com.anton.uzhva.megamazz_bot.handler.commands_handler;
 
 import com.anton.uzhva.megamazz_bot.commands.BotCommands;
 import com.anton.uzhva.megamazz_bot.handler.UserRegistrationHandler;
@@ -13,8 +13,6 @@ import com.anton.uzhva.megamazz_bot.service.UserSessionService;
 import com.anton.uzhva.megamazz_bot.util.UserRegistrationChecker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import javax.persistence.NoResultException;
 
 @Component
 public class StartCommandHandler extends UserRequestHandler {
