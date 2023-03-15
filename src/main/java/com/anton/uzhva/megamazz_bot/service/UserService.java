@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.anton.uzhva.megamazz_bot.model.User;
-import com.anton.uzhva.megamazz_bot.model.UserRepo;
+import com.anton.uzhva.megamazz_bot.repository.UserRepo;
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @org.springframework.stereotype.Service

@@ -28,6 +28,7 @@ public class KeyboardHelper {
     public InlineKeyboardMarkup mainMenu() {
         List<InlineKeyboardButton> row1 = new ArrayList<>();
         List<InlineKeyboardButton> row2 = new ArrayList<>();
+        List<InlineKeyboardButton> row3 = new ArrayList<>();
         row1.add(InlineKeyboardButton.builder()
                 .text("Watch results")
                 .callbackData(Constants.GET_RESULT)
@@ -36,9 +37,14 @@ public class KeyboardHelper {
                 .text("Add new result")
                 .callbackData(Constants.ADD_NEW_RESULT)
                 .build());
+        row3.add(InlineKeyboardButton.builder()
+                .text(Constants.BODY_WEIGHT)
+                .callbackData(Constants.BODY_WEIGHT)
+                .build());
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
         rowList.add(row1);
         rowList.add(row2);
+        rowList.add(row3);
         return InlineKeyboardMarkup
                 .builder()
                 .keyboard(rowList).build();
@@ -182,6 +188,25 @@ public class KeyboardHelper {
                 .build());
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
         rowList.add(row);
+        return InlineKeyboardMarkup.builder()
+                .keyboard(rowList)
+                .build();
+    }
+
+    public InlineKeyboardMarkup weightMenu() {
+        List<InlineKeyboardButton> row1 = new ArrayList<>();
+        List<InlineKeyboardButton> row2 = new ArrayList<>();
+        row1.add(InlineKeyboardButton.builder()
+                .text(Constants.ADD_BODY_WEIGHT_VALUE)
+                .callbackData(Constants.ADD_BODY_WEIGHT_VALUE)
+                .build());
+        row2.add(InlineKeyboardButton.builder()
+                .text(Constants.GET_BODY_WEIGHT_VALUES)
+                .callbackData(Constants.GET_BODY_WEIGHT_VALUES)
+                .build());
+        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+        rowList.add(row1);
+        rowList.add(row2);
         return InlineKeyboardMarkup.builder()
                 .keyboard(rowList)
                 .build();

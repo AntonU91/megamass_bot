@@ -51,7 +51,7 @@ public class ChoosingExerciseHandler extends UserRequestHandler {
             userSession.setExercise(exercise);
             telegramService.sendMessage(request.getChatId(), "Send the the weight you worked with");
 
-            userSession.setState(ConversationState.INPUTING_RESULT_WEIGHT);
+            userSession.setState(ConversationState.INPUTING_BODY_WEIGHT);
             userSessionService.saveUserSession(request.getChatId(), userSession);
         }
     }

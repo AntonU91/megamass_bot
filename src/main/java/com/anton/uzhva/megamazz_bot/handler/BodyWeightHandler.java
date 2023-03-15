@@ -1,43 +1,39 @@
 package com.anton.uzhva.megamazz_bot.handler;
 
 import com.anton.uzhva.megamazz_bot.constant.Constants;
+import com.anton.uzhva.megamazz_bot.helper.KeyboardHelper;
 import com.anton.uzhva.megamazz_bot.model.ConversationState;
-import com.anton.uzhva.megamazz_bot.model.Exercise;
 import com.anton.uzhva.megamazz_bot.model.UserRequest;
 import com.anton.uzhva.megamazz_bot.model.UserSession;
-import com.anton.uzhva.megamazz_bot.service.ExerciseService;
 import com.anton.uzhva.megamazz_bot.service.TelegramService;
 import com.anton.uzhva.megamazz_bot.service.UserSessionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class EditResultHandler implements UserCallBackRequestHandler {
+public class BodyWeightHandler implements UserCallBackRequestHandler {
     UserSessionService userSessionService;
     TelegramService telegramService;
-    ExerciseService exerciseService;
+    KeyboardHelper keyboardHelper;
 
     @Autowired
-    public EditResultHandler(UserSessionService userSessionService, TelegramService telegramService, ExerciseService exerciseService) {
+    public BodyWeightHandler(UserSessionService userSessionService, TelegramService telegramService, KeyboardHelper keyboardHelper) {
         this.userSessionService = userSessionService;
         this.telegramService = telegramService;
-        this.exerciseService = exerciseService;
+        this.keyboardHelper = keyboardHelper;
     }
 
     @Override
     public void handleCallBack(UserRequest userRequest) {
         UserSession userSession = userSessionService.getSession(userRequest.getChatId());
-        Exercise exercise = (Exercise) exerciseService.findExerciseByRecordDate(userSession.getExercise().getRecordDate());
-        telegramService.sendMessage(userRequest.getChatId(), String.format("To edit  exercise \"%s\" result, input  once again weight value",
-                exercise.getName()));
-        userSession.setState(ConversationState.INPUTING_BODY_WEIGHT);
+        telegramService.sendMessage(userRequest.getChatId(), "Choose what you want ⬇️", keyboardHelper.weightMenu());
+        userSession.setState(ConversationState.WAITING_FOR_REQUEST);
         userSessionService.saveUserSession(userRequest.getChatId(), userSession);
     }
 
     @Override
     public boolean isCallbackApplicable(UserRequest userRequest) {
         return userRequest.getSession().getState().equals(ConversationState.WAITING_FOR_REQUEST)
-                && isValidCallBack(userRequest.getUpdate(), Constants.EDIT_RESULT);
+                && isValidCallBack(userRequest.getUpdate(), Constants.BODY_WEIGHT);
     }
-
 }

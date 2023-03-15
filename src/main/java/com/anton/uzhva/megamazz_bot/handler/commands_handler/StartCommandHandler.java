@@ -44,7 +44,7 @@ public class StartCommandHandler extends UserRequestHandler {
         if (UserRegistrationChecker.isUserRegistered(userService, request.getChatId())) {
             userService.getUserLogin(request.getChatId());
             telegramService.sendMessage(userSession.getChatId(),
-                    String.format("Hi,%s. Choose what you want me to do", userService.getUserLogin(request.getChatId())), keyboardHelper.mainMenu());
+                    String.format("Hi, %s. Choose what you want me to do", userService.getUserLogin(request.getChatId())), keyboardHelper.mainMenu());
             userSession.setState(ConversationState.WAITING_FOR_REQUEST);
             userSessionService.saveUserSession(request.getChatId(), userSession);
         } else {
@@ -54,7 +54,7 @@ public class StartCommandHandler extends UserRequestHandler {
                     .getFirstName();
             userSession.setState(ConversationState.USER_REGISTRATION);
             telegramService.sendMessage(userSession.getChatId(),
-                    String.format("Hi,%s.To continue using bot make your login up and enter this one", userName));
+                    String.format("Hi, %s.To continue using bot make your login up and enter this one", userName));
             userSessionService.saveUserSession(request.getChatId(), userSession);
         }
     }
