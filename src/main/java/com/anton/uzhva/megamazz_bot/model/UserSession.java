@@ -14,4 +14,5 @@ public class UserSession {
      ConversationState state;
      Exercise exercise;
      User user;
+     BodyWeight bodyWeight;
 }

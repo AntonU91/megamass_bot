@@ -30,7 +30,7 @@ public class EditResultHandler implements UserCallBackRequestHandler {
         Exercise exercise = (Exercise) exerciseService.findExerciseByRecordDate(userSession.getExercise().getRecordDate());
         telegramService.sendMessage(userRequest.getChatId(), String.format("To edit  exercise \"%s\" result, input  once again weight value",
                 exercise.getName()));
-        userSession.setState(ConversationState.INPUTING_BODY_WEIGHT);
+        userSession.setState(ConversationState.INPUTTING_WEIGHT);
         userSessionService.saveUserSession(userRequest.getChatId(), userSession);
     }
 

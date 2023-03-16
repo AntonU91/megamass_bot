@@ -103,7 +103,7 @@ public class KeyboardHelper {
     public InlineKeyboardMarkup acceptOrChangeResultValue() {
         List<InlineKeyboardButton> row = new ArrayList<>();
         row.add(InlineKeyboardButton.builder()
-                .text("OK")
+                .text("✅OK")
                 .callbackData(Constants.OK)
                 .build());
         row.add(InlineKeyboardButton.builder()

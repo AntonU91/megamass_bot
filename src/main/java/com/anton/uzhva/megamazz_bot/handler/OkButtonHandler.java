@@ -33,8 +33,7 @@ public class OkButtonHandler implements UserCallBackRequestHandler {
 
     @Override
     public boolean isCallbackApplicable(UserRequest userRequest) {
-        return userRequest.getSession().getState().equals(ConversationState.WAITING_FOR_REQUEST)
-                && isValidCallBack(userRequest.getUpdate(), Constants.OK);
+        return isValidCallBack(userRequest.getUpdate(), Constants.OK);
     }
 
 }
