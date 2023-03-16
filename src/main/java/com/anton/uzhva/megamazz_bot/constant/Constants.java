@@ -13,12 +13,11 @@ public abstract class Constants {
     public static String REGEX_REPEATING_COUNT = "\\d{1,2}";
     public static String OK = "OK";
     public static String EDIT_RESULT = "EDIT";
-    public static String GET_RESULT = "GET_RESULT";
+    public static String GET_RESULTS = "GET_RESULTS";
     public static String REGEX_TRAINING_WEEK = "WEEK-\\d{1,3}";
     public static String ADD_NEW_EXERCISE = "Add exercise";
     public static String DELETE_EXERCISE = "Delete exercise";
     public static String REGEX_NEW_EXERCISE = "^\\s*\\D+.*";
-    public static String REGEX_DELETE_EXERCISE = "^\\s*\\D+.*";
     public static String DELETE_ALL_RESULTS = "DELETE_RESULTS";
     public static String CANCEL = "CANCEL";
 }

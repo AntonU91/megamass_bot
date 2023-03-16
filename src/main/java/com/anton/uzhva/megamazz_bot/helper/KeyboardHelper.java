@@ -1,8 +1,11 @@
 package com.anton.uzhva.megamazz_bot.helper;
 
 import com.anton.uzhva.megamazz_bot.constant.Constants;
+import com.anton.uzhva.megamazz_bot.model.BodyWeight;
+import com.anton.uzhva.megamazz_bot.service.BodyWeightService;
 import com.anton.uzhva.megamazz_bot.service.ExerciseService;
 import com.anton.uzhva.megamazz_bot.service.UserService;
+import com.anton.uzhva.megamazz_bot.util.Periods;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -18,11 +21,13 @@ import java.util.List;
 public class KeyboardHelper {
     UserService userService;
     ExerciseService exerciseService;
+    BodyWeightService bodyWeightService;
 
     @Autowired
-    public KeyboardHelper(UserService userService, ExerciseService exerciseService) {
+    public KeyboardHelper(UserService userService, ExerciseService exerciseService, BodyWeightService bodyWeightService) {
         this.userService = userService;
         this.exerciseService = exerciseService;
+        this.bodyWeightService = bodyWeightService;
     }
 
     public InlineKeyboardMarkup mainMenu() {
@@ -31,7 +36,7 @@ public class KeyboardHelper {
         List<InlineKeyboardButton> row3 = new ArrayList<>();
         row1.add(InlineKeyboardButton.builder()
                 .text("Watch results")
-                .callbackData(Constants.GET_RESULT)
+                .callbackData(Constants.GET_RESULTS)
                 .build());
         row2.add(InlineKeyboardButton.builder()
                 .text("Add new result")
@@ -212,4 +217,31 @@ public class KeyboardHelper {
                 .build();
     }
 
+    public ReplyKeyboardMarkup periodOfBodyWeightsRecordToChoose(long chatId) {
+        Periods[] periodsToGetResults = Periods.values();
+        KeyboardRow row = new KeyboardRow();
+        List<KeyboardRow> rowList = new ArrayList<>();
+        for (int i = 0; i < periodsToGetResults.length; i++) {
+            boolean hasAtLeastOneRecordInSpecifiedDiapason = bodyWeightService
+                    .hasAtLeastOneRecordInSpecifiedDiapason(chatId, periodsToGetResults[i].getDays());
+            if (hasAtLeastOneRecordInSpecifiedDiapason) {
+                row.add(KeyboardButton.builder()
+                        .text(periodsToGetResults[i].getName())
+                        .build());
+            } else continue;
+            if ((i + 1) % 2 == 0) {
+                rowList.add(row);
+                row = new KeyboardRow();
+            }
+            if (i + 1 == periodsToGetResults.length) {
+                rowList.add(row);
+            }
+
+        }
+        return ReplyKeyboardMarkup.builder()
+                .keyboard(rowList)
+                .oneTimeKeyboard(true)
+                .resizeKeyboard(true)
+                .build();
+    }
 }

@@ -30,10 +30,9 @@ public class GetResultsHandler implements UserCallBackRequestHandler {
     public void handleCallBack(UserRequest userRequest) {
         UserSession userSession = userSessionService.getSession(userRequest.getChatId());
         long resultsCount = (long) exerciseService.getExercisesCountByUserID(userRequest.getChatId());
-        if (resultsCount==0) {
+        if (resultsCount == 0) {
             telegramService.sendMessage(userRequest.getChatId(), "You have not added any training result yet", keyboardHelper.acceptInfo());
-        }
-        else {
+        } else {
             telegramService.sendMessage(userRequest.getChatId(), "Choose training week to watch results", keyboardHelper.listOfTrainingWeeks(userRequest.getChatId()));
             userSession.setState(ConversationState.CHOOSING_TRAINING_WEEK);
             userSessionService.saveUserSession(userRequest.getChatId(), userSession);
@@ -43,6 +42,7 @@ public class GetResultsHandler implements UserCallBackRequestHandler {
     @Override
     public boolean isCallbackApplicable(UserRequest userRequest) {
         return userRequest.getSession().getState().equals(ConversationState.WAITING_FOR_REQUEST)
-                && isValidCallBack(userRequest.getUpdate(), Constants.GET_RESULT);
+                && isValidCallBack(userRequest.getUpdate(), Constants.GET_BODY_WEIGHT_VALUES);
     }
+
 }

@@ -13,6 +13,7 @@ import java.util.Date;
 @Accessors(fluent = true)
 @Entity(name = "bodyWeight")
 @Table(name = "body_weight")
+@ToString
 public class BodyWeight {
 
     @Id
@@ -26,12 +27,12 @@ public class BodyWeight {
     @JoinColumn(name = "user_id", referencedColumnName = "chat_id")
     private User user;
 
+    @NonNull
     @Column(name = "value", nullable = false)
     private double value;
 
     @NonNull
     @Column(name = "created_at")
     private Date created_at;
-
 
 }
