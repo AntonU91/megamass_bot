@@ -1,7 +1,6 @@
 package com.anton.uzhva.megamazz_bot.helper;
 
 import com.anton.uzhva.megamazz_bot.constant.Constants;
-import com.anton.uzhva.megamazz_bot.model.BodyWeight;
 import com.anton.uzhva.megamazz_bot.service.BodyWeightService;
 import com.anton.uzhva.megamazz_bot.service.ExerciseService;
 import com.anton.uzhva.megamazz_bot.service.UserService;
@@ -221,9 +220,14 @@ public class KeyboardHelper {
         Periods[] periodsToGetResults = Periods.values();
         KeyboardRow row = new KeyboardRow();
         List<KeyboardRow> rowList = new ArrayList<>();
+      //  if ()
+//        row.add(KeyboardButton.builder()
+//                .text("Last result")
+//                .build());
+//        rowList.add(row);
         for (int i = 0; i < periodsToGetResults.length; i++) {
             boolean hasAtLeastOneRecordInSpecifiedDiapason = bodyWeightService
-                    .hasAtLeastOneRecordInSpecifiedDiapason(chatId, periodsToGetResults[i].getDays());
+                    .matchSpecifiedDiapason(chatId, periodsToGetResults[i].getDays());
             if (hasAtLeastOneRecordInSpecifiedDiapason) {
                 row.add(KeyboardButton.builder()
                         .text(periodsToGetResults[i].getName())
@@ -236,7 +240,6 @@ public class KeyboardHelper {
             if (i + 1 == periodsToGetResults.length) {
                 rowList.add(row);
             }
-
         }
         return ReplyKeyboardMarkup.builder()
                 .keyboard(rowList)
