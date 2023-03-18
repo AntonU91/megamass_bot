@@ -9,6 +9,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Transient;
 
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Entity(name = "user")
@@ -16,7 +18,7 @@ import org.springframework.stereotype.Component;
 public class User {
     @Id
     @Column(name = "chat_id", nullable = false)
-    private Long chatId;
+    private Long id;
 
     @Column(name = "first_name")
     private String firstName;
@@ -26,7 +28,6 @@ public class User {
 
     @Transient
     private static final ArrayList<String> DEFAULT_EXERCISES = new ArrayList<>(
-         //   Arrays.asList("A", "B", "C", "D"));
             Arrays.asList("Жим", "Присідання зі штангою", "Станова тяга", "Випад в осад"));
 
 
@@ -65,11 +66,11 @@ public class User {
     }
 
     public Long getId() {
-        return chatId;
+        return id;
     }
 
     public void setId(Long id) {
-        this.chatId = id;
+        this.id = id;
     }
 
 
@@ -84,7 +85,7 @@ public class User {
     @Override
     public String toString() {
         return "User{" +
-                "chatId=" + chatId +
+                "chatId=" + id +
                 ", firstName='" + firstName + '\'' +
                 ", userName='" + userLogin + '\'' +
                 '}';
