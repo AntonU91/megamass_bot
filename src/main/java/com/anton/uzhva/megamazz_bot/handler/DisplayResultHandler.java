@@ -53,7 +53,7 @@ public class DisplayResultHandler implements UserCallBackRequestHandler {
         List<Exercise> exercisesResult = exerciseService.getTrainingResultOfConcreteWeek(chatId, weekNumber);
         results.append("Training week №").append(weekNumber).append("\n").append("\n");
         for (Exercise temp : exercisesResult) {
-            results.append(String.format("%s - %.1f for %d time(s)%n", temp.getName(), temp.getWeight(),
+            results.append(String.format("%s - %.1f kg for %d time(s)%n", temp.getName(), temp.getWeight(),
                     temp.getCount()));
         }
         return results.toString();

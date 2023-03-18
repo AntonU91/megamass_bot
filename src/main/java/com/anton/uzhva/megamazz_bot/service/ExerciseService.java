@@ -38,7 +38,7 @@ public class ExerciseService {
 
 
     public List<Exercise> findAllExerciseRecordByUserId(long chatId) {
-        return eManager.createQuery(" FROM exercise e where e.user.id=:id")
+        return eManager.createQuery("FROM exercise e where e.user.id=:id")
                 .setParameter("id", chatId).getResultList();
     }
 

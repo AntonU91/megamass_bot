@@ -42,7 +42,7 @@ public class GetResultsHandler implements UserCallBackRequestHandler {
     @Override
     public boolean isCallbackApplicable(UserRequest userRequest) {
         return userRequest.getSession().getState().equals(ConversationState.WAITING_FOR_REQUEST)
-                && isValidCallBack(userRequest.getUpdate(), Constants.GET_BODY_WEIGHT_VALUES);
+                && isValidCallBack(userRequest.getUpdate(), Constants.GET_RESULTS);
     }
 
 }

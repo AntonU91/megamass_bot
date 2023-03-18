@@ -32,8 +32,9 @@ public class UserService {
     public void saveUser(User user) {
         userRepo.save(user);
     }
+
     public Optional<User> findUserById(long chatId) {
-       return userRepo.findById(chatId);
+        return userRepo.findById(chatId);
     }
 
     public String getUserLogin(long chatId) {
@@ -59,9 +60,9 @@ public class UserService {
         String exercises = (String) eManager.createQuery("SELECT u.exercises FROM user u WHERE u.id=:id")
                 .setParameter("id", chatId)
                 .getSingleResult();
-        System.out.println(exercises); /// just for log
         String[] strArr = exercises.split(",+\\s*");
         for (String temp : strArr) {
+            temp = temp.trim();
             exerciseList.add(temp);
         }
         return exerciseList;

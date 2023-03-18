@@ -26,7 +26,7 @@ public class AddTrainingResultHandler implements UserCallBackRequestHandler {
     @Override
     public void handleCallBack(UserRequest userRequest) {
         UserSession userSession = userSessionService.getSession(userRequest.getChatId());
-        telegramService.sendMessage(userRequest.getChatId(), "For saving new result choose the exercise",
+        telegramService.sendMessage(userRequest.getChatId(), "For saving new result choose the exercise ⬇️",
                 keyboardHelper.exercisesList(userRequest.getChatId()));
         userSession.setState(ConversationState.CHOOSING_EXERCISE);
         userSessionService.saveUserSession(userRequest.getChatId(), userSession);
@@ -35,6 +35,7 @@ public class AddTrainingResultHandler implements UserCallBackRequestHandler {
 
     @Override
     public boolean isCallbackApplicable(UserRequest userRequest) {
-        return isValidCallBack(userRequest.getUpdate(), Constants.ADD_NEW_RESULT);
+        return userRequest.getSession().getState().equals(ConversationState.WAITING_FOR_REQUEST)
+                && isValidCallBack(userRequest.getUpdate(), Constants.ADD_NEW_RESULT);
     }
 }

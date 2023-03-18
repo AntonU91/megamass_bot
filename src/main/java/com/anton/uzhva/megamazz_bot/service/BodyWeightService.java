@@ -80,7 +80,8 @@ public class BodyWeightService {
         Date theLatestRecordDate = theLatestRecord.createdAt();
         String sqlQuery;
         if (daysToSubtract == 0 && period.getName().equals("Last result")) {
-            sqlQuery = "SELECT MAX(bw.createdAt) FROM bodyWeight bw WHERE bw.user.id=:id";
+            sqlQuery = "SELECT* FROM bodyWeight bw " +
+                    "WHERE bw.createdAt = (SELECT MAX(bw2.createdAt) FROM bodyWeight bw2 WHERE bw2.user.id = :id) AND bw.user.id=:id";
             return entityManager.createQuery(sqlQuery, BodyWeight.class)
                     .setParameter("id", chatId)
                     .getResultList();
@@ -101,7 +102,7 @@ public class BodyWeightService {
 
     public boolean hasAtLeastOneRecord(long chatId) {
         String sqlQuery = "SELECT * FROM body_weight  WHERE  created_at >0 AND user_id=:id LIMIT 1 ";
-        List<BodyWeight> bodyWeightList = entityManager.createNativeQuery(sqlQuery)
+        List<BodyWeight> bodyWeightList = entityManager.createNativeQuery(sqlQuery, BodyWeight.class)
                 .setParameter("id",chatId)
                 .getResultList();
         return !bodyWeightList.isEmpty();
