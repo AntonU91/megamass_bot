@@ -4,7 +4,7 @@ import com.anton.uzhva.megamazz_bot.constant.Constants;
 import com.anton.uzhva.megamazz_bot.service.BodyWeightService;
 import com.anton.uzhva.megamazz_bot.service.ExerciseService;
 import com.anton.uzhva.megamazz_bot.service.UserService;
-import com.anton.uzhva.megamazz_bot.util.Periods;
+import com.anton.uzhva.megamazz_bot.util.Period;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -217,30 +217,32 @@ public class KeyboardHelper {
     }
 
     public ReplyKeyboardMarkup periodOfBodyWeightsRecordToChoose(long chatId) {
-        Periods[] periodsToGetResults = Periods.values();
+        Period[] periodToGetResults = Period.values();
         KeyboardRow row = new KeyboardRow();
         List<KeyboardRow> rowList = new ArrayList<>();
-      //  if ()
-//        row.add(KeyboardButton.builder()
-//                .text("Last result")
-//                .build());
-//        rowList.add(row);
-        for (int i = 0; i < periodsToGetResults.length; i++) {
+        row.add(KeyboardButton.builder()
+                .text("Last result")
+                .build());
+        for (int i = 0; i < periodToGetResults.length; i++) {
             boolean hasAtLeastOneRecordInSpecifiedDiapason = bodyWeightService
-                    .matchSpecifiedDiapason(chatId, periodsToGetResults[i].getDays());
+                    .matchSpecifiedDiapason(chatId, periodToGetResults[i].getDays());
             if (hasAtLeastOneRecordInSpecifiedDiapason) {
                 row.add(KeyboardButton.builder()
-                        .text(periodsToGetResults[i].getName())
+                        .text(periodToGetResults[i].getName())
                         .build());
             } else continue;
             if ((i + 1) % 2 == 0) {
                 rowList.add(row);
                 row = new KeyboardRow();
             }
-            if (i + 1 == periodsToGetResults.length) {
+            if (i + 1 == periodToGetResults.length) {
                 rowList.add(row);
             }
         }
+        row.add(KeyboardButton.builder()
+                .text("All results")
+                .build());
+        rowList.add(row);
         return ReplyKeyboardMarkup.builder()
                 .keyboard(rowList)
                 .oneTimeKeyboard(true)
