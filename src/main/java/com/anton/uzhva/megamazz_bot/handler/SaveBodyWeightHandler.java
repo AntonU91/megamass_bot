@@ -41,7 +41,7 @@ public class SaveBodyWeightHandler extends UserRequestHandler {
         BodyWeight bodyWeight = userSession.getBodyWeight()
                 .user(user)
                 .value(value)
-                .created_at(new Date());
+                .createdAt(new Date());
 
         bodyWeightService.saveBodyWeight(bodyWeight);
         userSession.setState(ConversationState.BODY_WEIGHT_OPTION);
