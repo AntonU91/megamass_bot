@@ -49,7 +49,7 @@ public class ChoosingExerciseHandler extends UserRequestHandler {
             Exercise exercise = new Exercise();
             exercise.setName(request.getUpdate().getMessage().getText());
             userSession.setExercise(exercise);
-            telegramService.sendMessage(request.getChatId(), "Send the the weight you worked with");
+            telegramService.sendMessage(request.getChatId(), "Send the the weight you worked with in format of digit. You can use decimal number.\n For example, 65.92");
 
             userSession.setState(ConversationState.INPUTTING_WEIGHT);
             userSessionService.saveUserSession(request.getChatId(), userSession);

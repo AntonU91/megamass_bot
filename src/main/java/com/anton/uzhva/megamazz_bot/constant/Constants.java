@@ -9,7 +9,7 @@ public abstract class Constants {
     public static final String GET_BODY_WEIGHT_VALUES = "Watch body weight records";
     public static String REGEX_USER_LOGIN = "^\\s*.+";
     public static String ADD_NEW_RESULT = "ADD_RESULT";
-    public static String REGEX_INPUTTED_WEIGHT = "\\s*\\d+[.,]?\\d*";
+    public static String REGEX_INPUTTED_WEIGHT = "\\s*\\d+(\\.d+)?";
     public static String REGEX_REPEATING_COUNT = "\\d{1,2}";
     public static String OK = "OK";
     public static String EDIT_RESULT = "EDIT";

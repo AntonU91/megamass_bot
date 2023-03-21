@@ -8,38 +8,38 @@ import com.anton.uzhva.megamazz_bot.model.UserRequest;
 import com.anton.uzhva.megamazz_bot.model.UserSession;
 import com.anton.uzhva.megamazz_bot.service.TelegramService;
 import com.anton.uzhva.megamazz_bot.service.UserSessionService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@AllArgsConstructor
 public class SaveWeightHandler extends UserRequestHandler {
     UserSessionService userSessionService;
     TelegramService telegramService;
     KeyboardHelper keyboardHelper;
-
-    @Autowired
-    public SaveWeightHandler(UserSessionService userSessionService, TelegramService telegramService, KeyboardHelper keyboardHelper) {
-        this.userSessionService = userSessionService;
-        this.telegramService = telegramService;
-        this.keyboardHelper = keyboardHelper;
-    }
+    WrongWeighFormatHandler wrongWeighFormatHandler;
 
     @Override
     public boolean isApplicable(UserRequest request) {
-        return isValidTextMessage(request.getUpdate(), Constants.REGEX_INPUTTED_WEIGHT) &&
-                request.getSession().getState().equals(ConversationState.INPUTTING_WEIGHT);
+        return request.getSession().getState().equals(ConversationState.INPUTTING_WEIGHT);
     }
 
     @Override
     public void handle(UserRequest userRequest) {
-        double weight = Double.parseDouble(userRequest.getUpdate().getMessage().getText());
-        UserSession userSession = userSessionService.getSession(userRequest.getChatId());
-        Exercise exercise = userSession.getExercise();
-        exercise.setWeight(weight);
-        userSession.setState(ConversationState.WAITING_REPEATING_COUNT);
-        userSessionService.saveUserSession(userSession.getChatId(), userSession);
-        telegramService.sendMessage(userRequest.getChatId(), "Select the number of exercise repetitions",
-                keyboardHelper.countKeyBoard());
+        String retrievedText = userRequest.getUpdate().getMessage().getText();
+        if (!retrievedText.matches(Constants.REGEX_INPUTTED_WEIGHT)) {
+            wrongWeighFormatHandler.handle(userRequest);
+        }
+        else {
+            double weight = Double.parseDouble(retrievedText);
+            UserSession userSession = userSessionService.getSession(userRequest.getChatId());
+            Exercise exercise = userSession.getExercise();
+            exercise.setWeight(weight);
+            userSession.setState(ConversationState.WAITING_REPEATING_COUNT);
+            userSessionService.saveUserSession(userSession.getChatId(), userSession);
+            telegramService.sendMessage(userRequest.getChatId(), "Select the number of exercise repetitions",
+                    keyboardHelper.countKeyBoard());
+       }
     }
 
     @Override
