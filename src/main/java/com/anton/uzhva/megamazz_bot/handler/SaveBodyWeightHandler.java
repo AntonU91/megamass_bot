@@ -37,7 +37,7 @@ public class SaveBodyWeightHandler extends UserRequestHandler {
     public void handle(UserRequest request) {
         UserSession userSession = userSessionService.getSession(request.getChatId());
         double value = Double.parseDouble(request.getUpdate().getMessage().getText());
-        User user = userService.findUserById(request.getChatId()).get();
+        User user = userService.getUserById(request.getChatId()).get();
         BodyWeight bodyWeight = userSession.getBodyWeight()
                 .user(user)
                 .value(value)

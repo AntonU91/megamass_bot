@@ -7,7 +7,6 @@ import com.anton.uzhva.megamazz_bot.service.ExerciseService;
 import com.anton.uzhva.megamazz_bot.service.TelegramService;
 import com.anton.uzhva.megamazz_bot.service.UserService;
 import com.anton.uzhva.megamazz_bot.service.UserSessionService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Calendar;
@@ -35,7 +34,7 @@ public class SaveRepeatingHandler implements UserCallBackRequestHandler {
     public void handleCallBack(UserRequest userRequest) {
         UserSession userSession = userSessionService.getSession(userRequest.getChatId());
         Exercise exercise = userSession.getExercise();
-        exercise.setUser(userService.findUserById(userRequest.getChatId()).get());
+        exercise.setUser(userService.getUserById(userRequest.getChatId()).get());
         exercise.setCount(Integer.parseInt(userRequest
                 .getUpdate()
                 .getCallbackQuery()

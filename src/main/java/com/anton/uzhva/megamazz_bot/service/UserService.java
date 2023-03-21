@@ -33,7 +33,7 @@ public class UserService {
         userRepo.save(user);
     }
 
-    public Optional<User> findUserById(long chatId) {
+    public Optional<User> getUserById(long chatId) {
         return userRepo.findById(chatId);
     }
 
