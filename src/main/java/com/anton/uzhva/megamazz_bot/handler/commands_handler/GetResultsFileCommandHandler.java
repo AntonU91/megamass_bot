@@ -42,7 +42,7 @@ public class GetResultsFileCommandHandler extends UserRequestHandler {
         if (!UserRegistrationChecker.isUserRegistered(userService, request.getChatId())) {
             askUserToRegistHandler.handle(request);
         } else {
-            telegramService.sendTextFileWithResults(request.getUpdate(), keyboardHelper.acceptInfo());
+            telegramService.sendTXTFileWithResults(request.getUpdate(), keyboardHelper.acceptInfo());
             userSession.setState(ConversationState.WAITING_FOR_REQUEST);
             userSessionService.saveUserSession(request.getChatId(), userSession);
         }

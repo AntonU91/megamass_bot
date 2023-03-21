@@ -2,10 +2,12 @@ package com.anton.uzhva.megamazz_bot.service;
 
 import com.anton.uzhva.megamazz_bot.sender.MegamassBotSender;
 import com.anton.uzhva.megamazz_bot.util.FileHandler;
+import com.anton.uzhva.megamazz_bot.util.FileRemover;
+import com.anton.uzhva.megamazz_bot.util.FileToDeleteContainer;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
@@ -25,11 +27,14 @@ import java.io.File;
 public class TelegramService {
     final MegamassBotSender botSender;
     final FileHandler fileHandler;
+    final FileToDeleteContainer fileToDeleteContainer;
+    final  FileRemover fileRemover;
 
-    @Autowired
-    public TelegramService(MegamassBotSender botSender, FileHandler fileHandler) {
+    public TelegramService(MegamassBotSender botSender, FileHandler fileHandler, FileToDeleteContainer fileToDeleteContainer) {
         this.botSender = botSender;
         this.fileHandler = fileHandler;
+        this.fileToDeleteContainer = fileToDeleteContainer;
+        this.fileRemover =  new FileRemover(fileToDeleteContainer);
     }
 
     public void sendMessage(long chatId, String msgText) {
@@ -79,15 +84,14 @@ public class TelegramService {
         execute(editMessageText);
     }
 
-    public void sendTextFileWithResults(Update update, InlineKeyboardMarkup inlineKeyboardMarkup) {
+    public void sendTXTFileWithResults(Update update, InlineKeyboardMarkup inlineKeyboardMarkup) {
         long chatId;
         if (update.hasMessage() && update.getMessage().hasText()) {
             chatId = update.getMessage().getChatId();
         } else {
             chatId = update.getCallbackQuery().getMessage().getChatId();
         }
-        File fileToSend = fileHandler.getFileWithTraningResults(chatId);
-
+        File fileToSend = fileHandler.createFileWithTraningResults(chatId);
         InputFile inputFile = new InputFile(fileToSend);
         SendDocument sendDocument = SendDocument.builder()
                 .document(inputFile)
@@ -99,6 +103,7 @@ public class TelegramService {
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
+        fileToDeleteContainer.addFileToContainer(fileToSend);
     }
 
     private void execute(BotApiMethod<?> botApiMethod) {
