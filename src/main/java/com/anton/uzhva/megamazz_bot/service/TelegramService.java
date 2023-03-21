@@ -18,6 +18,8 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMar
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Slf4j
@@ -97,6 +99,11 @@ public class TelegramService {
         try {
             botSender.execute(sendDocument);
         } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+        try {
+            Files.delete(fileToSend.toPath());
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
