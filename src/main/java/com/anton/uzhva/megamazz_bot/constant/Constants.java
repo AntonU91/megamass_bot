@@ -15,8 +15,8 @@ public abstract class Constants {
     public static String EDIT_RESULT = "Edit";
     public static String GET_RESULTS = "Watch results";
     public static String REGEX_TRAINING_WEEK = "WEEK-\\d{1,3}";
-    public static String ADD_NEW_EXERCISE = "Add exercise";
-    public static String DELETE_EXERCISE = "Delete exercise";
+    public static String ADD_NEW_EXERCISE = "➕Add exercise";
+    public static String DELETE_EXERCISE = "\uD83D\uDDD1️Delete exercise";
     public static String REGEX_NEW_EXERCISE = "^\\s*\\D+.*";
     public static String DELETE_ALL_RESULTS = "DELETE_RESULTS";
     public static String CANCEL = "CANCEL";

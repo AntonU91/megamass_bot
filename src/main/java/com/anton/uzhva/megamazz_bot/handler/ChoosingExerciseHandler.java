@@ -8,25 +8,21 @@ import com.anton.uzhva.megamazz_bot.model.UserSession;
 import com.anton.uzhva.megamazz_bot.service.TelegramService;
 import com.anton.uzhva.megamazz_bot.service.UserService;
 import com.anton.uzhva.megamazz_bot.service.UserSessionService;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.NoSuchElementException;
 
 @Component
+@AllArgsConstructor
 public class ChoosingExerciseHandler extends UserRequestHandler {
     UserService userService;
     TelegramService telegramService;
     UserSessionService userSessionService;
     ChooseExerciseToDeleteHandler chooseExerciseToDeleteHandler;
+    AddNewExerciseHandler addNewExerciseHandler;
 
-    @Autowired
-    public ChoosingExerciseHandler(UserService userService, TelegramService telegramService, UserSessionService userSessionService, ChooseExerciseToDeleteHandler chooseExerciseToDeleteHandler) {
-        this.userService = userService;
-        this.telegramService = telegramService;
-        this.userSessionService = userSessionService;
-        this.chooseExerciseToDeleteHandler = chooseExerciseToDeleteHandler;
-    }
 
     @Override
     public boolean isApplicable(UserRequest request) {
@@ -60,10 +56,12 @@ public class ChoosingExerciseHandler extends UserRequestHandler {
     public boolean isGlobal() {
         return false;
     }
+
     /**
      * Return specified by first argument exercise name of concrete registered user.
      * If first argument equals "Delete exercise" method return these words.
      * In other cases {@link NoSuchElementException} will be thrown.
+     *
      * @param message
      * @param chatId
      * @return specified by first argument exercise name

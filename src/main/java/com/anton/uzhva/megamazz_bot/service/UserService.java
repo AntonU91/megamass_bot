@@ -46,11 +46,6 @@ public class UserService {
     @Transactional
     public void addExercise(long chatId, String newExercise) {
         User user = userRepo.findById(chatId).get();
-
-        String exercises = (String) eManager.createQuery("SELECT u.exercises FROM user u WHERE u.id=:id")
-                .setParameter("id", chatId)
-                .getSingleResult();
-        exercises += ", " + newExercise;
         user.addExercise(newExercise);
         userRepo.save(user);
     }
@@ -60,10 +55,14 @@ public class UserService {
         String exercises = (String) eManager.createQuery("SELECT u.exercises FROM user u WHERE u.id=:id")
                 .setParameter("id", chatId)
                 .getSingleResult();
-        String[] strArr = exercises.split(",+\\s*");
-        for (String temp : strArr) {
-            temp = temp.trim();
-            exerciseList.add(temp);
+        if (exercises.isEmpty()) {
+            return exerciseList;
+        } else {
+            String[] strArr = exercises.split(",+\\s*");
+            for (String temp : strArr) {
+                temp = temp.trim();
+                exerciseList.add(temp);
+            }
         }
         return exerciseList;
     }
