@@ -39,7 +39,6 @@ public class DisplayBodyWeightRecordsForSpecifiedPeriodHandler extends UserReque
     @Override
     public void handle(UserRequest request) {
         UserSession userSession = userSessionService.getSession(request.getChatId());
-        //String text = request.getUpdate().getMessage().getText();
         Period period = getPeriod(request.getUpdate());
         List<BodyWeight> bodyWeightList = bodyWeightService.getResultsOfSpecifiedDiapason(request.getChatId(), period);
         telegramService.sendMessage(request.getChatId(), prepareMessageForDisplaying(bodyWeightList),

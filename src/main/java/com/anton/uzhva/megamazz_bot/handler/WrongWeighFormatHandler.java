@@ -11,7 +11,7 @@ public class WrongWeighFormatHandler {
     TelegramService telegramService;
 
     public void handle(UserRequest userRequest) {
-        telegramService.sendMessage(userRequest.getChatId(), "You have typed wrong format data! Try again. Use only digit.\n" +
+        telegramService.sendMessage(userRequest.getChatId(), "⛔You have typed wrong format data!Try again. Use only digit.\n" +
                 " You can use decimal number format, e.g 56.8");
     }
 }

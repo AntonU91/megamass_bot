@@ -30,10 +30,10 @@ public class GetBodyWeightRecords implements UserCallBackRequestHandler {
     public void handleCallBack(UserRequest userRequest) {
         UserSession userSession = userSessionService.getSession(userRequest.getChatId());
         if (bodyWeightService.hasAtLeastOneRecord(userRequest.getChatId())) {
-            telegramService.sendMessage(userRequest.getChatId(), "Choose the period",
+            telegramService.sendMessage(userRequest.getChatId(), "Choose the period⬇️",
                     keyboardHelper.periodOfBodyWeightsRecordToChoose(userRequest.getChatId()));
         } else {
-            telegramService.sendMessage(userRequest.getChatId(), "You have not records yet", keyboardHelper.acceptInfo());
+            telegramService.sendMessage(userRequest.getChatId(), "You have not records yet⚠️", keyboardHelper.acceptInfo());
         }
         userSession.setState(ConversationState.BODY_WEIGHT_OPTION);
         userSessionService.saveUserSession(userSession.getChatId(), userSession);

@@ -37,7 +37,7 @@ public class SaveWeightHandler extends UserRequestHandler {
             exercise.setWeight(weight);
             userSession.setState(ConversationState.WAITING_REPEATING_COUNT);
             userSessionService.saveUserSession(userSession.getChatId(), userSession);
-            telegramService.sendMessage(userRequest.getChatId(), "Select the number of exercise repetitions",
+            telegramService.sendMessage(userRequest.getChatId(), "Select the number of exercise repetitions⚠️",
                     keyboardHelper.countKeyBoard());
        }
     }

@@ -32,7 +32,7 @@ public class AddNewExerciseHandler extends UserRequestHandler {
     @Override
     public void handle(UserRequest request) {
         UserSession userSession = userSessionService.getSession(request.getChatId());
-        telegramService.sendMessage(request.getChatId(), "Input name of new exercise");
+        telegramService.sendMessage(request.getChatId(), "Input name of new exercise ✍️");
         userSession.setState(ConversationState.CREATING_NEW_EXERCISE);
         userSessionService.saveUserSession(request.getChatId(), userSession);
     }

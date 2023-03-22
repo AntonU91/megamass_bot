@@ -34,7 +34,7 @@ public class ChangeLoginHandler extends UserRequestHandler {
         if (!UserRegistrationChecker.isUserRegistered(userService, request.getChatId())) {
             askUserToRegistHandler.handle(request);
         } else {
-            telegramService.sendMessage(request.getChatId(), String.format("Your current user name is %s. Input new one ✍️."
+            telegramService.sendMessage(request.getChatId(), String.format("Your current login is %s. Input new one ✍️."
                     , userService.getUserLogin(request.getChatId())));
             userSession.setState(ConversationState.СHANGING_USER_NAME);
             userSessionService.saveUserSession(userSession.getChatId(), userSession);

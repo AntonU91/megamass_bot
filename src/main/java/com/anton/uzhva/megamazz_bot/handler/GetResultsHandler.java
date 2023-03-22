@@ -31,9 +31,9 @@ public class GetResultsHandler implements UserCallBackRequestHandler {
         UserSession userSession = userSessionService.getSession(userRequest.getChatId());
         long resultsCount = (long) exerciseService.getExercisesCountByUserID(userRequest.getChatId());
         if (resultsCount == 0) {
-            telegramService.sendMessage(userRequest.getChatId(), "You have not added any training result yet", keyboardHelper.acceptInfo());
+            telegramService.sendMessage(userRequest.getChatId(), "You have not added any training result yet⚠️", keyboardHelper.acceptInfo());
         } else {
-            telegramService.sendMessage(userRequest.getChatId(), "Choose training week to watch results", keyboardHelper.listOfTrainingWeeks(userRequest.getChatId()));
+            telegramService.sendMessage(userRequest.getChatId(), "Choose training week to watch results⬇️", keyboardHelper.listOfTrainingWeeks(userRequest.getChatId()));
             userSession.setState(ConversationState.CHOOSING_TRAINING_WEEK);
             userSessionService.saveUserSession(userRequest.getChatId(), userSession);
         }

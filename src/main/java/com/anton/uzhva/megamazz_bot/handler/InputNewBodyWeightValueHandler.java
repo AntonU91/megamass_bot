@@ -27,7 +27,7 @@ public class InputNewBodyWeightValueHandler implements UserCallBackRequestHandle
         BodyWeight bodyWeight =  new BodyWeight();
         userSession.setState(ConversationState.INPUTTING_BODY_WEIGHT);
         userSession.setBodyWeight(bodyWeight);
-        telegramService.sendMessage(userRequest.getChatId(), "Please, input your weight ✍️");
+        telegramService.sendMessage(userRequest.getChatId(), "Please, input your weight✍️");
         userSessionService.saveUserSession(userRequest.getChatId(), userSession);
     }
 

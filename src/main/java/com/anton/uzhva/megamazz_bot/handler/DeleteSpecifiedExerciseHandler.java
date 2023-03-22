@@ -41,7 +41,7 @@ public class DeleteSpecifiedExerciseHandler extends UserRequestHandler {
         String exerciseToDelete = request.getUpdate().getMessage().getText();
         UserSession userSession = userSessionService.getSession(request.getChatId());
         userService.deleteSpecifiedExerciseByUserID(exerciseToDelete, request.getChatId());
-        telegramService.sendMessage(request.getChatId(), String.format("Exercise \"%s\" was deleted ", exerciseToDelete),
+        telegramService.sendMessage(request.getChatId(), String.format("Exercise \"%s\" was deleted\uD83D\uDDD1️", exerciseToDelete),
                 keyboardHelper.acceptInfo());
         userSession.setState(ConversationState.WAITING_FOR_REQUEST);
         userSessionService.saveUserSession(request.getChatId(), userSession);

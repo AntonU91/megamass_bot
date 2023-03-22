@@ -34,11 +34,11 @@ public class KeyboardHelper {
         List<InlineKeyboardButton> row2 = new ArrayList<>();
         List<InlineKeyboardButton> row3 = new ArrayList<>();
         row1.add(InlineKeyboardButton.builder()
-                .text("Watch results")
+                .text("\uD83D\uDC40"+Constants.GET_RESULTS)
                 .callbackData(Constants.GET_RESULTS)
                 .build());
         row2.add(InlineKeyboardButton.builder()
-                .text("Add new result")
+                .text("➕"+Constants.ADD_NEW_RESULT)
                 .callbackData(Constants.ADD_NEW_RESULT)
                 .build());
         row3.add(InlineKeyboardButton.builder()
@@ -72,10 +72,10 @@ public class KeyboardHelper {
         }
         KeyboardRow rowForDeletingAndAddingExercise = new KeyboardRow();
         rowForDeletingAndAddingExercise.add(KeyboardButton.builder()
-                .text("Add exercise")
+                .text("➕Add exercise")
                 .build());
         rowForDeletingAndAddingExercise.add(KeyboardButton.builder()
-                .text("Delete exercise")
+                .text("\uD83D\uDDD1️Delete exercise")
                 .build());
         rowList.add(rowForDeletingAndAddingExercise);
         return ReplyKeyboardMarkup.builder()
@@ -111,7 +111,7 @@ public class KeyboardHelper {
                 .callbackData(Constants.OK)
                 .build());
         row.add(InlineKeyboardButton.builder()
-                .text("Edit")
+                .text( "\uD83D\uDCDD"+Constants.EDIT_RESULT)
                 .callbackData(Constants.EDIT_RESULT)
                 .build());
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
@@ -124,6 +124,13 @@ public class KeyboardHelper {
     public InlineKeyboardMarkup listOfTrainingWeeks(long chatId) {
         List<Integer> trainingWeekNumberList = exerciseService.getListOfTrainingWeeksNumber(chatId);
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+        List<InlineKeyboardButton> rowBack = new ArrayList<>();
+        rowBack.add(InlineKeyboardButton.builder()
+                .text("\uD83D\uDD19"+Constants.BACK)
+                .callbackData(Constants.BACK)
+                .build());
+        rowList.add(rowBack);
+
         List<InlineKeyboardButton> row = new ArrayList<>();
         for (int i = 0; i < trainingWeekNumberList.size(); i++) {
             row.add(InlineKeyboardButton
@@ -131,7 +138,7 @@ public class KeyboardHelper {
                     .text(String.valueOf(trainingWeekNumberList.get(i)))
                     .callbackData("WEEK-" + trainingWeekNumberList.get(i))
                     .build());
-            if ((i + 1) % 3 == 0) {
+            if ((i + 1) % 4 == 0) {
                 rowList.add(row);
                 row = new ArrayList<>();
             }
@@ -183,11 +190,11 @@ public class KeyboardHelper {
     public InlineKeyboardMarkup acceptOrCancel() {
         List<InlineKeyboardButton> row = new ArrayList<>();
         row.add(InlineKeyboardButton.builder()
-                .text("Yes")
+                .text("✅Yes")
                 .callbackData(Constants.DELETE_ALL_RESULTS)
                 .build());
         row.add(InlineKeyboardButton.builder()
-                .text("Cancel")
+                .text("❌Cancel")
                 .callbackData(Constants.CANCEL)
                 .build());
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
@@ -200,17 +207,24 @@ public class KeyboardHelper {
     public InlineKeyboardMarkup weightMenu() {
         List<InlineKeyboardButton> row1 = new ArrayList<>();
         List<InlineKeyboardButton> row2 = new ArrayList<>();
+        List<InlineKeyboardButton> row3 = new ArrayList<>();
         row1.add(InlineKeyboardButton.builder()
-                .text(Constants.ADD_BODY_WEIGHT_VALUE)
+                .text("➕"+Constants.ADD_BODY_WEIGHT_VALUE)
                 .callbackData(Constants.ADD_BODY_WEIGHT_VALUE)
                 .build());
         row2.add(InlineKeyboardButton.builder()
-                .text(Constants.GET_BODY_WEIGHT_VALUES)
+                .text("\uD83D\uDC40"+Constants.GET_BODY_WEIGHT_VALUES)
                 .callbackData(Constants.GET_BODY_WEIGHT_VALUES)
                 .build());
+        row3.add(InlineKeyboardButton.builder()
+                .text("🔙"+Constants.BACK)
+                .callbackData(Constants.BACK)
+                .build());
+
         List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
         rowList.add(row1);
         rowList.add(row2);
+        rowList.add(row3);
         return InlineKeyboardMarkup.builder()
                 .keyboard(rowList)
                 .build();

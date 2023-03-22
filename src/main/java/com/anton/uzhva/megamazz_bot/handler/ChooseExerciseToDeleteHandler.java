@@ -35,7 +35,7 @@ public class ChooseExerciseToDeleteHandler extends UserRequestHandler {
     @Override
     public void handle(UserRequest request) {
         UserSession userSession = userSessionService.getSession(request.getChatId());
-        telegramService.sendMessage(request.getChatId(), "Choose the exercise to delete",
+        telegramService.sendMessage(request.getChatId(), "Choose the exercise to delete⬇️",
                 keyboardHelper.listOfExercisesToDelete(request.getChatId()));
         userSession.setState(ConversationState.DELETING_EXERCISE);
         userSessionService.saveUserSession(request.getChatId(), userSession);

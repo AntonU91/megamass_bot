@@ -42,7 +42,7 @@ public class DeleteAllResultsCommandHandler extends UserRequestHandler {
         if (!UserRegistrationChecker.isUserRegistered(userService, request.getChatId())) {
             askUserToRegistHandler.handle(request);
         } else {
-            telegramService.sendMessage(request.getChatId(), "You want to delete all training records, are you sure?\n" + "I recommend saving the results before deleting with the \"/getresultsfile\" command", keyboardHelper.acceptOrCancel());
+            telegramService.sendMessage(request.getChatId(), "⚠️⚡You want to delete all training records, are you sure?\n" + "I recommend saving the results before deleting with the \"/getresultsfile\" command", keyboardHelper.acceptOrCancel());
             userSession.setState(ConversationState.WAITING_FOR_REQUEST);
             userSessionService.saveUserSession(request.getChatId(), userSession);
         }

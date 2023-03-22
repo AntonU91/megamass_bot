@@ -41,7 +41,7 @@ public class SaveNewExerciseHandler extends UserRequestHandler {
         UserSession userSession = userSessionService.getSession(request.getChatId());
         String newExerciseName = request.getUpdate().getMessage().getText();
         userService.addExercise(request.getChatId(), newExerciseName);
-        telegramService.sendMessage(request.getChatId(), String.format("You have added \"%s\" to exercises list", newExerciseName)
+        telegramService.sendMessage(request.getChatId(), String.format("You have added \"%s\" to exercises list\uD83D\uDDD2️", newExerciseName)
                 , keyboardHelper.acceptInfo());
         userSession.setState(ConversationState.WAITING_FOR_REQUEST);
         userSessionService.saveUserSession(request.getChatId(), userSession);

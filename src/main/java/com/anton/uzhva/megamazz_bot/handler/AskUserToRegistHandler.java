@@ -15,7 +15,7 @@ public class AskUserToRegistHandler {
     }
 
     public void handle(UserRequest request) {
-        telegramService.sendMessage(request.getChatId(), "Firstly, you should log in! Please, make up your login and input it");
+        telegramService.sendMessage(request.getChatId(), "Firstly, you should log in! Please, create your login and input it ✍️");
     }
 
 }

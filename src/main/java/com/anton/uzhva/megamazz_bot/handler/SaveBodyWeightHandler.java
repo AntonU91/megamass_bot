@@ -46,7 +46,7 @@ public class SaveBodyWeightHandler extends UserRequestHandler {
 
             bodyWeightService.saveBodyWeight(bodyWeight);
             userSession.setState(ConversationState.BODY_WEIGHT_OPTION);
-            telegramService.sendMessage(request.getChatId(), String.format("New body weight result is %.2f kg", value),
+            telegramService.sendMessage(request.getChatId(), String.format("New body weight result is %.2f kg\uD83D\uDD25", value),
                     keyboardHelper.acceptOrChangeResultValue());
             userSessionService.saveUserSession(request.getChatId(), userSession);
         }
