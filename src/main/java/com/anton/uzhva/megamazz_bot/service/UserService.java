@@ -60,8 +60,10 @@ public class UserService {
         } else {
             String[] strArr = exercises.split(",+\\s*");
             for (String temp : strArr) {
-                temp = temp.trim();
-                exerciseList.add(temp);
+                if (!temp.isEmpty()) {
+                    temp = temp.trim();
+                    exerciseList.add(temp);
+                }
             }
         }
         return exerciseList;

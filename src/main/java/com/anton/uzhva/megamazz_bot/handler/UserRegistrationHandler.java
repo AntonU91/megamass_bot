@@ -50,7 +50,7 @@ public class UserRegistrationHandler extends UserRequestHandler {
     private User createAndSaveUser(UserSession userSession, String userLogin) {
         User user = new User();
         user.setUserLogin(userLogin);
-        user.setDefaultExercises();
+        user.setDefaultExercises(User.DEFAULT_EXERCISES);
         user.setId(userSession.getChatId());
         userService.saveUser(user);
         return user;

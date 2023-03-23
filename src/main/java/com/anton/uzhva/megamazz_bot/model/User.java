@@ -3,15 +3,14 @@ package com.anton.uzhva.megamazz_bot.model;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Transient;
 
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +30,7 @@ public class User {
     private String userLogin;
 
     @Transient
-    private static final ArrayList<String> DEFAULT_EXERCISES = new ArrayList<>(
+    public static final ArrayList<String> DEFAULT_EXERCISES = new ArrayList<>(
             Arrays.asList("Bench press", "Squats with barbell", "Deadlift"));
 
     @Column(name = "user_exercises", nullable = false)
@@ -40,20 +39,22 @@ public class User {
     @Transient
     private ArrayList<String> userExercises = new ArrayList<>(DEFAULT_EXERCISES);
 
-    private String createExersises(List<String> exercises) {
-        String str = "";
+    private String createExercises(List<String> exercises) {
+        StringBuilder exercisesStr = new StringBuilder();
         for (int i = 0; i < exercises.size(); i++) {
-            if (i == exercises.size() - 1) {
-                str += exercises.get(i);
-            } else {
-                str += exercises.get(i) + ", ";
-            }
+            //if (i == exercises.size() - 1) {
+            //       exercisesStr += exercises.get(i);
+            //  } else {
+            exercisesStr.append(exercises.get(i))
+                    .append(",")
+                    .append(" ");
+            //  }
         }
-        return str;
+        return exercisesStr.toString();
     }
 
-    public void setDefaultExercises() {
-        exercises = createExersises(DEFAULT_EXERCISES);
+    public void setDefaultExercises(List<String> defaultExercises) {
+        exercises = createExercises(defaultExercises);
     }
 
     public void addExercise(String newExercise) {
@@ -69,4 +70,16 @@ public class User {
                 '}';
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id) && Objects.equals(firstName, user.firstName) && Objects.equals(userLogin, user.userLogin) && Objects.equals(exercises, user.exercises) && Objects.equals(userExercises, user.userExercises);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, firstName, userLogin, exercises, userExercises);
+    }
 }
