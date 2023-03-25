@@ -30,7 +30,7 @@ public class User {
     private String userLogin;
 
     @Transient
-    public static final ArrayList<String> DEFAULT_EXERCISES = new ArrayList<>(
+    public static final List<String> DEFAULT_EXERCISES = new ArrayList<>(
             Arrays.asList("Bench press", "Squats with barbell", "Deadlift"));
 
     @Column(name = "user_exercises", nullable = false)
@@ -39,22 +39,18 @@ public class User {
     @Transient
     private ArrayList<String> userExercises = new ArrayList<>(DEFAULT_EXERCISES);
 
-    private String createExercises(List<String> exercises) {
+    private String createDefaultExercises(List<String> exercises) {
         StringBuilder exercisesStr = new StringBuilder();
-        for (int i = 0; i < exercises.size(); i++) {
-            //if (i == exercises.size() - 1) {
-            //       exercisesStr += exercises.get(i);
-            //  } else {
-            exercisesStr.append(exercises.get(i))
+        for (String exercise : exercises) {
+            exercisesStr.append(exercise)
                     .append(",")
                     .append(" ");
-            //  }
         }
         return exercisesStr.toString();
     }
 
     public void setDefaultExercises(List<String> defaultExercises) {
-        exercises = createExercises(defaultExercises);
+        exercises = createDefaultExercises(defaultExercises);
     }
 
     public void addExercise(String newExercise) {
