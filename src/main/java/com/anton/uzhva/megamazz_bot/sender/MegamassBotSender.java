@@ -28,8 +28,6 @@ public class MegamassBotSender  extends DefaultAbsSender {
     @Value("${bot.name}")
     String botName;
 
-
-
     @Override
     public String getBotToken() {
      return botConfig.getBotToken();

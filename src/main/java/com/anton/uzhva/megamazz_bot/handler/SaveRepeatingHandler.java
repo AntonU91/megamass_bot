@@ -40,7 +40,7 @@ public class SaveRepeatingHandler implements UserCallBackRequestHandler {
                 .getCallbackQuery()
                 .getData()));
         exercise.setRecordDate(new Date());
-        if (exerciseService.findAtLeastOneExerciceRecordByUserId(userRequest.getChatId()).isEmpty()) {
+        if (exerciseService.findAtLeastOneExerciseRecordByUserId(userRequest.getChatId()).isEmpty()) {
             exercise.setWeekNumber(1);
         } else {
             exercise.setWeekNumber(defineTheWeeksOfTraining(exercise.getRecordDate(), userRequest.getChatId()));

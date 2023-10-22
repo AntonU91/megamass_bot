@@ -40,7 +40,6 @@ public class TelegramService {
                 .chatId(chatId)
                 .build();
         execute(sendMsg);
-
     }
 
     public void sendMessage(long chatId, String msgText, ReplyKeyboardMarkup replyKeyboardMarkup) {

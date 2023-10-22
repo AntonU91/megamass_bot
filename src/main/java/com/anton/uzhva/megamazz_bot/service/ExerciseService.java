@@ -42,7 +42,7 @@ public class ExerciseService {
                 .setParameter("id", chatId).getResultList();
     }
 
-    public List<Exercise> findAtLeastOneExerciceRecordByUserId(long chatId) {
+    public List<Exercise> findAtLeastOneExerciseRecordByUserId(long chatId) {
         return eManager.createQuery("FROM exercise e where e.user.id=:id").setParameter("id", chatId)
                 .setMaxResults(1)
                 .getResultList();
@@ -68,7 +68,8 @@ public class ExerciseService {
     }
 
     public Object findExerciseByRecordDate(Date date) {
-        return eManager.createQuery("FROM exercise e WHERE e.recordDate=:date").setParameter("date", date)
+        return eManager.createQuery("FROM exercise e WHERE e.recordDate=:date")
+                .setParameter("date", date)
                 .getSingleResult();
     }
 
